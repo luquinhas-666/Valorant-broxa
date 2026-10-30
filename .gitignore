@@ -1,0 +1,13 @@
+**/bin/
+**/obj/
+.vs/
+.vscode/
+.DS_Store
+publish/
+
+*.suo
+*.user
+*.userosscache
+
+# Diagnostico local
+diagnostico-compilacao.txt

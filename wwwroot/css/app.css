@@ -1,0 +1,113 @@
+:root {
+    font-family: "DM Sans", "Segoe UI", Arial, sans-serif;
+    color: #e9eef7;
+    background: #090e1a;
+    font-synthesis: none;
+}
+* { box-sizing: border-box; }
+html { min-width: 320px; }
+body {
+    margin: 0;
+    min-height: 100vh;
+    background:
+        radial-gradient(ellipse at 13% 8%, #172942 0%, transparent 38%),
+        radial-gradient(ellipse at 91% 37%, #242039 0%, transparent 35%),
+        #090e1a;
+}
+button, a { -webkit-tap-highlight-color: transparent; }
+button { font: inherit; cursor: pointer; }
+button:focus-visible, a:focus-visible { outline: 3px solid #7cf2cd; outline-offset: 3px; }
+a { color: inherit; text-decoration: none; }
+.site-shell { max-width: 1270px; margin: 0 auto; padding: 0 28px; }
+.topbar { height: 88px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #ffffff19; }
+.brand { display: inline-flex; align-items: center; gap: 12px; }
+.brand-symbol { display: grid; place-items: center; color: #0c1d20; background: #b7f9d7; border-radius: 12px; font: 800 28px "Barlow Condensed", sans-serif; width: 41px; height: 41px; transform: skew(-6deg); }
+.brand strong { font: 800 22px/.9 "Barlow Condensed", sans-serif; display: block; letter-spacing: .12em; }
+.brand small { font: 600 9px "DM Sans", sans-serif; color: #91a7bd; display: block; letter-spacing: .20em; margin-top: 6px; }
+.online-pill { font: 600 11px "DM Sans", sans-serif; padding: 10px 14px; background: #ffffff0a; border: 1px solid #ffffff1a; color: #a8bed0; border-radius: 99px; display: flex; align-items: center; gap: 9px; }
+.status-dot, .live-dot { display: inline-block; border-radius: 50%; background: #87eabd; width: 6px; height: 6px; box-shadow: 0 0 9px #87eabd70; }
+.intro { display: flex; align-items: end; justify-content: space-between; gap: 25px; padding: 47px 0 35px; }
+.eyebrow { text-transform: uppercase; letter-spacing: .25em; color: #a5f3cf; font: 700 10px "DM Sans", sans-serif; }
+h1 { font: 800 clamp(36px, 5vw, 65px)/1.04 "Barlow Condensed", sans-serif; text-transform: uppercase; letter-spacing: .016em; margin: 13px 0 12px; }
+h1 em { font-style: normal; color: #b7f9d7; }
+.intro p { margin: 0; color: #9daec5; font-size: 13px; line-height: 1.65; max-width: 680px; }
+.version-tag { border-left: 2px solid #b7f9d7; text-align: right; padding: 5px 0 5px 17px; white-space: nowrap; color: #8999b1; font-size: 10px; letter-spacing: .11em; }
+.version-tag span { font-weight: 800; color: #b7f9d7; display: block; font: 700 28px "Barlow Condensed", sans-serif; }
+.game-panel { border-radius: 15px; overflow: hidden; border: 1px solid #354052; background: #111a2c; box-shadow: 0 22px 85px #00000050; }
+.panel-heading { padding: 14px 20px; display: flex; align-items: center; justify-content: space-between; gap: 12px; background: #121b2d; }
+.panel-title { display: flex; align-items: center; gap: 9px; font-size: 12px; color: #f0f5ff; }
+.panel-marker { background: #a6f5ca; border-radius: 2px; width: 5px; height: 16px; margin-right: 3px; }
+.panel-subtitle { color: #8091a6; font-size: 11px; font-weight: 400; }
+.restart-button { color: #d2dce8; background: #24334c; border: 1px solid #45536a; padding: 8px 13px; border-radius: 7px; font-size: 11px; font-weight: 700; transition: .15s background; white-space: nowrap; }
+.restart-button:hover { background: #344960; }
+.restart-button span { margin-right: 5px; font-size: 17px; vertical-align: -2px; }
+.mode-tabs { background: #0c1322; display: flex; padding: 0 11px; border-block: 1px solid #273346; gap: 4px; overflow-x: auto; }
+.mode-tab { background: transparent; border: none; border-bottom: 3px solid transparent; color: #7f92ad; padding: 15px 13px 12px; font: 800 10px "DM Sans", sans-serif; letter-spacing: .03em; white-space: nowrap; }
+.mode-tab span { font-size: 12px; font-weight: 600; margin-left: 7px; }
+.mode-tab:hover { color: white; }
+.mode-tab.active { border-bottom-color: #adf4d3; color: #c5f9e2; background: #a0f8da0b; }
+.canvas-container { width: 100%; background: #050a0d; }
+.game-canvas { display: block; width: 100%; height: auto; aspect-ratio: 20 / 13; touch-action: none; image-rendering: auto; }
+.game-footer { padding: 10px 19px; display: flex; gap: 10px; justify-content: space-between; color: #8494aa; font-size: 9px; font-weight: 700; letter-spacing: .10em; }
+.live-dot { width: 5px; height: 5px; margin-right: 7px; }
+.controls-area { margin: 38px 0 58px; }
+.controls-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+.hint { color: #7f91a7; font-size: 11px; }
+.controls-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.player-card { padding: 22px 25px; background: #131c2d; border: 1px solid #ffffff18; border-radius: 13px; }
+.player-heading { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; }
+.player-number { font: 800 18px "Barlow Condensed", sans-serif; display: grid; place-items: center; width: 36px; height: 36px; border-radius: 7px; }
+.player-number.one { background: #1c514a; color: #a1ffe1; }
+.player-number.two { background: #483048; color: #ffbdcf; }
+.player-heading strong { display: block; font-size: 13px; }
+.player-heading small { display: block; margin-top: 4px; font-size: 10px; color: #8292ab; }
+.controls-content { display: flex; gap: 22px; align-items: center; justify-content: space-between; }
+.direction-pad { display: grid; grid-template-columns: repeat(3, 45px); gap: 5px; align-items: center; }
+.direction-pad button, .action-buttons button { background: #25344b; border: 1px solid #45536c; color: #f1f5fb; height: 42px; min-width: 43px; border-radius: 7px; font: 800 14px "DM Sans", sans-serif; touch-action: none; user-select: none; }
+.direction-pad button:hover, .direction-pad button.is-pressed { background: #467465; border-color: #9af3c8; }
+.action-buttons { display: flex; flex-direction: column; gap: 9px; }
+.action-buttons > div { display: flex; align-items: center; gap: 10px; }
+.action-buttons button { width: 42px; flex-shrink: 0; }
+.action-buttons button.attack-key { border-color: #639c86; color: #abffd2; }
+.action-buttons button.power-key { border-color: #a485b4; color: #e4c1ff; }
+.action-buttons button.is-pressed { background: #425b5f; }
+.action-buttons span { color: #a2b1c6; font-size: 10px; white-space: nowrap; }
+.control-note { font-size: 11px; line-height: 1.6; color: #8395aa; margin: 17px 0 0; }
+.page-footer { padding: 22px 0 28px; display: flex; justify-content: center; gap: 11px; color: #66788c; font-size: 10px; border-top: 1px solid #ffffff14; }
+.page-footer span { color: #a2f8d0; }
+.loading-screen { display: grid; place-content: center; text-align: center; gap: 16px; height: 100vh; color: #e5f7ef; font-size: 14px; }
+.loading-screen p { margin: 0; font-weight: 700; }
+.loading-screen span { color: #8fa6b9; font-size: 11px; }
+.loading-mark { justify-self: center; display: grid; place-items: center; background: #aafbd3; color: #122127; border-radius: 18px; width: 66px; height: 66px; font: 800 44px "Barlow Condensed", sans-serif; }
+#blazor-error-ui:not([hidden]) { position: fixed; left: 0; right: 0; bottom: 0; background: #8e2525; color: white; padding: 14px 25px; z-index: 999; }
+#blazor-error-ui a { text-decoration: underline; }
+#blazor-error-ui button { float: right; }
+.not-found { text-align: center; padding: 80px 30px; }
+.not-found a { text-decoration: underline; }
+
+@media (max-width: 850px) {
+  .controls-content { flex-wrap: wrap; }
+  .direction-pad { grid-template-columns: repeat(3, 41px); }
+}
+@media (max-width: 680px) {
+  .site-shell { padding: 0 14px; }
+  .topbar { height: 74px; }
+  .online-pill { font-size: 0; padding: 12px; }
+  .online-pill .status-dot { width: 8px; height: 8px; }
+  .intro { padding: 31px 0 27px; }
+  .version-tag { display: none; }
+  .intro p { font-size: 12px; }
+  .panel-heading { padding: 11px; }
+  .panel-subtitle { display: none; }
+  .mode-tabs { padding: 0 5px; }
+  .mode-tab { padding: 13px 9px 10px; }
+  .mode-tab span { font-size: 10px; }
+  .game-footer { font-size: 8px; padding: 10px; }
+  .game-footer span:last-child { display: none; }
+  .controls-grid { grid-template-columns: 1fr; }
+  .player-card { padding: 18px; }
+  .controls-content { flex-wrap: nowrap; }
+  .direction-pad { grid-template-columns: repeat(3, 45px); }
+  .hint { font-size: 10px; }
+  .page-footer { font-size: 9px; text-align: center; }
+}

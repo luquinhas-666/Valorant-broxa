@@ -1,0 +1,24 @@
+﻿Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 18
+VisualStudioVersion = 18.0.0.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MovimentoWeb", "MovimentoWeb.csproj", "{91B2F10E-69CA-48B7-98C7-26DF1A188EAD}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{91B2F10E-69CA-48B7-98C7-26DF1A188EAD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{91B2F10E-69CA-48B7-98C7-26DF1A188EAD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{91B2F10E-69CA-48B7-98C7-26DF1A188EAD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{91B2F10E-69CA-48B7-98C7-26DF1A188EAD}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {95713AEC-1F23-460F-A7AE-03DEB3986F0E}
+	EndGlobalSection
+EndGlobal

@@ -1,0 +1,59 @@
+name: Publicar Movimento RPG no GitHub Pages
+
+on:
+  push:
+    branches: [main, master]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: github-pages
+  cancel-in-progress: true
+
+jobs:
+  build-deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Baixar o código
+        uses: actions/checkout@v4
+
+      - name: Instalar .NET 10
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Publicar Blazor WebAssembly Standalone
+        run: dotnet publish MovimentoWeb.csproj --configuration Release --output ./publish
+
+      - name: Preparar caminhos do GitHub Pages
+        shell: bash
+        run: |
+          REPO="${GITHUB_REPOSITORY#*/}"
+          if [ "$REPO" = "${GITHUB_REPOSITORY_OWNER}.github.io" ]; then
+            BASE="/"
+          else
+            BASE="/${REPO}/"
+          fi
+          echo "Usando <base href=\"${BASE}\">"
+          sed -i "s|<base href=\"/\" />|<base href=\"${BASE}\" />|" publish/wwwroot/index.html
+          cp publish/wwwroot/index.html publish/wwwroot/404.html
+          touch publish/wwwroot/.nojekyll
+
+      - name: Configurar GitHub Pages
+        uses: actions/configure-pages@v5
+
+      - name: Empacotar site
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: publish/wwwroot
+
+      - name: Publicar site
+        id: deployment
+        uses: actions/deploy-pages@v4

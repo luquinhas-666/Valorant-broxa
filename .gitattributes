@@ -1,0 +1,2 @@
+# Impede conversão de quebras de linha em assets de JavaScript.
+*.js binary

@@ -1,0 +1,219 @@
+@page "/"
+@implements IAsyncDisposable
+@inject IJSRuntime JS
+
+<PageTitle>Movimento RPG — Jogue Online</PageTitle>
+
+<div class="site-shell">
+    <header class="topbar">
+        <a class="brand" href="" aria-label="Movimento RPG, página inicial">
+            <span class="brand-symbol">M</span>
+            <span><strong>MOVIMENTO</strong><small>RPG • BROWSER EDITION</small></span>
+        </a>
+        <span class="online-pill"><span class="status-dot"></span> Blazor WebAssembly</span>
+    </header>
+
+    <main>
+        <section class="intro">
+            <div>
+                <div class="eyebrow">JOGO 2D · DOIS JOGADORES LOCAIS</div>
+                <h1>Seu combate. <em>Seu movimento.</em></h1>
+                <p>O RPG original, agora direto no navegador. Escolha um modo, compartilhe o teclado e comece a jogar.</p>
+            </div>
+            <div class="version-tag">EDIÇÃO WEB <span>01</span></div>
+        </section>
+
+        <section class="game-panel" aria-label="Área do jogo">
+            <div class="panel-heading">
+                <div class="panel-title">
+                    <span class="panel-marker"></span>
+                    <strong>@ModeName</strong>
+                    <span class="panel-subtitle">/ @ModeDescription</span>
+                </div>
+                <button type="button" class="restart-button" @onclick="Restart">
+                    <span aria-hidden="true">↻</span> Reiniciar
+                </button>
+            </div>
+
+            <nav class="mode-tabs" aria-label="Selecionar modo">
+                <button type="button" class="@ModeClass(2)" @onclick="() => SelectMode(2)">01 <span>Exploração</span></button>
+                <button type="button" class="@ModeClass(3)" @onclick="() => SelectMode(3)">02 <span>Duelo clássico</span></button>
+                <button type="button" class="@ModeClass(4)" @onclick="() => SelectMode(4)">03 <span>Poderes</span></button>
+                <button type="button" class="@ModeClass(5)" @onclick="() => SelectMode(5)">04 <span>Combate avançado</span></button>
+            </nav>
+
+            <div class="canvas-container">
+                <canvas @ref="_canvas" width="1000" height="650" class="game-canvas"
+                        aria-label="Cenário do jogo. Use as teclas informadas abaixo."></canvas>
+            </div>
+            <div class="game-footer">
+                <span><span class="live-dot"></span> JOGO LOCAL / SEM BACKEND</span>
+                <span>1000 × 650 · HTML CANVAS 2D</span>
+            </div>
+        </section>
+
+        <section class="controls-area" aria-label="Instruções e controles">
+            <div class="controls-head"><span class="eyebrow">CONTROLES</span><span class="hint">Use teclado ou os botões na tela</span></div>
+            <div class="controls-grid">
+                <div class="player-card">
+                    <div class="player-heading"><span class="player-number one">01</span><div><strong>Jogador 1</strong><small>Movimentação e ataque</small></div></div>
+                    <div class="controls-content">
+                        <div class="direction-pad wasd" aria-label="Movimentar jogador 1">
+                            <span></span><button type="button" data-game-key="KeyW" aria-label="Cima (W)">W</button><span></span>
+                            <button type="button" data-game-key="KeyA" aria-label="Esquerda (A)">A</button><button type="button" data-game-key="KeyS" aria-label="Baixo (S)">S</button><button type="button" data-game-key="KeyD" aria-label="Direita (D)">D</button>
+                        </div>
+                        <div class="action-buttons">
+                            <div><button type="button" data-game-key="KeyF" class="attack-key">F</button><span>Atacar / confirmar</span></div>
+                            <div><button type="button" data-game-key="KeyQ" class="power-key">Q</button><span>Poder especial</span></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="player-card">
+                    <div class="player-heading"><span class="player-number two">02</span><div><strong>Jogador 2</strong><small>Movimentação e ataque</small></div></div>
+                    <div class="controls-content">
+                        <div class="direction-pad arrows" aria-label="Movimentar jogador 2">
+                            <span></span><button type="button" data-game-key="ArrowUp" aria-label="Cima">↑</button><span></span>
+                            <button type="button" data-game-key="ArrowLeft" aria-label="Esquerda">←</button><button type="button" data-game-key="ArrowDown" aria-label="Baixo">↓</button><button type="button" data-game-key="ArrowRight" aria-label="Direita">→</button>
+                        </div>
+                        <div class="action-buttons">
+                            <div><button type="button" data-game-key="Enter" class="attack-key">↵</button><span>Atacar / confirmar</span></div>
+                            <div><button type="button" data-game-key="ShiftLeft" class="power-key">⇧</button><span>Poder especial</span></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <p class="control-note">Na seleção de personagens: jogador 1 usa A/D para escolher e F para confirmar; jogador 2 usa ←/→ e Enter. Os poderes especiais estão disponíveis nos modos 03 e 04.</p>
+        </section>
+    </main>
+    <footer class="page-footer">MOVIMENTO RPG <span>•</span> Original em C# convertido para Blazor WebAssembly</footer>
+</div>
+
+@code {
+    private ElementReference _canvas;
+    private Form _game = new Form5();
+    private DotNetObjectReference<Index>? _dotNetRef;
+    private CancellationTokenSource? _cancelLoop;
+    private Task? _loop;
+    private bool _initialized;
+    private int _mode = 5;
+
+    private string ModeName => _mode switch
+    {
+        2 => "Exploração livre",
+        3 => "Duelo clássico",
+        4 => "Batalha de poderes",
+        _ => "Combate avançado"
+    };
+
+    private string ModeDescription => _mode switch
+    {
+        2 => "Movimente o personagem",
+        3 => "Dois jogadores no mesmo teclado",
+        4 => "Quatro personagens elementais",
+        _ => "Oito personagens e técnicas especiais"
+    };
+
+    private string ModeClass(int value) => _mode == value ? "mode-tab active" : "mode-tab";
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!firstRender) return;
+        _dotNetRef = DotNetObjectReference.Create(this);
+        await JS.InvokeVoidAsync("movimentoGame.init", _canvas, _dotNetRef);
+        _initialized = true;
+        await JS.InvokeVoidAsync("movimentoGame.render", _game.RenderFrame());
+
+        _cancelLoop = new CancellationTokenSource();
+        _loop = GameLoop(_cancelLoop.Token);
+    }
+
+    private async Task GameLoop(CancellationToken token)
+    {
+        try
+        {
+            using var timer = new PeriodicTimer(TimeSpan.FromMilliseconds(30));
+            while (await timer.WaitForNextTickAsync(token))
+            {
+                await InvokeAsync(async () =>
+                {
+                    _game.StepFrame();
+                    if (_initialized)
+                        await JS.InvokeVoidAsync("movimentoGame.render", _game.RenderFrame());
+                });
+            }
+        }
+        catch (OperationCanceledException) { }
+        catch (JSDisconnectedException) { }
+    }
+
+    private async Task SelectMode(int mode)
+    {
+        if (_initialized) await JS.InvokeVoidAsync("movimentoGame.releaseAll");
+        _game.Dispose();
+        _mode = mode;
+        _game = mode switch
+        {
+            2 => new Form2(),
+            3 => new Form3(),
+            4 => new Form4(),
+            _ => new Form5()
+        };
+        if (_initialized) await JS.InvokeVoidAsync("movimentoGame.render", _game.RenderFrame());
+    }
+
+    private Task Restart() => SelectMode(_mode);
+
+    [JSInvokable]
+    public Task OnKeyDown(string key)
+    {
+        if (MapKey(key) is Keys mapped) _game.Press(mapped);
+        return Task.CompletedTask;
+    }
+
+    [JSInvokable]
+    public Task OnKeyUp(string key)
+    {
+        if (MapKey(key) is Keys mapped) _game.Release(mapped);
+        return Task.CompletedTask;
+    }
+
+    private static Keys? MapKey(string code) => code switch
+    {
+        "KeyA" => Keys.A,
+        "KeyD" => Keys.D,
+        "KeyW" => Keys.W,
+        "KeyS" => Keys.S,
+        "KeyF" => Keys.F,
+        "KeyQ" => Keys.Q,
+        "ArrowLeft" => Keys.Left,
+        "ArrowRight" => Keys.Right,
+        "ArrowUp" => Keys.Up,
+        "ArrowDown" => Keys.Down,
+        "Enter" or "NumpadEnter" => Keys.Enter,
+        "ShiftLeft" or "ShiftRight" => Keys.ShiftKey,
+        _ => null
+    };
+
+    public async ValueTask DisposeAsync()
+    {
+        if (_cancelLoop is not null)
+        {
+            await _cancelLoop.CancelAsync();
+            if (_loop is not null)
+            {
+                try { await _loop; }
+                catch (OperationCanceledException) { }
+            }
+            _cancelLoop.Dispose();
+        }
+
+        if (_initialized)
+        {
+            try { await JS.InvokeVoidAsync("movimentoGame.dispose"); }
+            catch (JSDisconnectedException) { }
+        }
+        _dotNetRef?.Dispose();
+        _game.Dispose();
+    }
+}
