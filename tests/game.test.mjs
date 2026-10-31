@@ -1,3 +1,4 @@
+import { MAP, SPAWNS, SITES } from '../map-layout.js';
 import fs from 'node:fs/promises';
 import vm from 'node:vm';
 import assert from 'node:assert/strict';
@@ -153,7 +154,7 @@ check('Arma comprada tem carregador, reserva e desconto corretos', () => {
   assert.equal(g.snapshot().credits, 1300);
 });
 g.beginRound();
-g.setPlayer({ x: -19, z: -10 });
+g.setPlayer({ ...SITES[0] });
 g.keys.add('KeyF');
 g.updateObjective(3.1);
 check('Segurar F no ponto planta a spike e concede recompensa', () => {
@@ -176,7 +177,7 @@ check('Terceiro round concluído provoca troca para defesa', () => {
 });
 g.beginRound();
 const carrier = g.snapshot().spike.carrier;
-carrier.pos = { x: 19, z: -10 };
+carrier.pos = { ...SITES[1] };
 carrier.plant = 0;
 for (const a of g.actors().filter((a) => a.team === 0)) {
   a.pos = { x: 0, z: 28 };
@@ -238,38 +239,29 @@ check('Morte derruba spike para recuperação pela equipe', () => {
   assert.equal(g.snapshot().spike.carrier, null);
 });
 check('Rotas entre bases e pontos são navegáveis', () => {
-  for (const start of [
-    { x: 0, z: 24 },
-    { x: 0, z: -27 },
-  ])
-    for (const end of [
-      { x: -19, z: -10 },
-      { x: 19, z: -10 },
-    ])
+  for (const start of [{ ...SPAWNS.attack }, { ...SPAWNS.defense }])
+    for (const end of [{ ...SITES[0] }, { ...SITES[1] }])
       assert.ok(g.world.path(start, end).length > 0);
 });
-check('Colisão impede atravessar fachadas', () => assert.equal(g.world.blocked(-22, 1), true));
-check('Interiores dos mercados e arquivo são atravessáveis', () => {
+check('Colisão impede atravessar fachadas', () => assert.equal(g.world.blocked(-16, 16), true));
+check('Galerias, armazém e lateral da torre são atravessáveis', () => {
   for (const p of [
-    { x: -16, z: 7 },
-    { x: 16, z: 7 },
-    { x: 2, z: -13 },
+    { x: -24, z: 20 },
+    { x: 28, z: 16 },
+    { x: 9, z: -14 },
   ])
     assert.equal(g.world.blocked(p.x, p.z), false);
 });
 check('Passagens internas ligam portas opostas', () => {
-  for (const x of [-16, 16]) {
-    const route = g.world.path({ x, z: 15 }, { x, z: -2 });
+  for (const x of [-24, 28]) {
+    const route = g.world.path({ x, z: 25 }, { x, z: 6 });
     assert.ok(route.length > 0);
     assert.ok(route.some((p) => Math.abs(p.x - x) < 3 && p.z > 2 && p.z < 12));
   }
 });
-check('Jardim e oficinas possuem rotas até os dois pontos', () => {
-  for (const x of [-28, 28])
-    for (const end of [
-      { x: -19, z: -10 },
-      { x: 19, z: -10 },
-    ])
+check('Jardim e canal possuem rotas até os dois pontos', () => {
+  for (const x of [-40, 40])
+    for (const end of [{ ...SITES[0] }, { ...SITES[1] }])
       assert.ok(g.world.path({ x, z: 24 }, end).length > 0);
 });
 check('Cenário estático usa lotes para reduzir chamadas de desenho', () => {
@@ -352,14 +344,17 @@ check('Compra cria duas barreiras físicas', () =>
   ),
 );
 check('Barreira bloqueia linha de tiro entre a base e o meio', () =>
-  assert.equal(g.world.clearLine({ x: 0, y: 1.5, z: 26 }, { x: 0, y: 1.5, z: 16 }), false),
+  assert.equal(
+    g.world.clearLine({ ...SPAWNS.attack, y: 1.5 }, { x: 0, y: 1.5, z: MAP.attackBarrier - 4 }),
+    false,
+  ),
 );
 g.keys.add('KeyW');
 g.updatePlayer(5);
 g.keys.clear();
 g.updatePlayer(0.01);
 check('Jogador não atravessa a barreira durante a compra', () =>
-  assert.ok(g.player().pos.z > 18.4),
+  assert.ok(g.player().pos.z > MAP.attackBarrier + 0.4),
 );
 const ammoBeforeBuy = g.snapshot().pistol.ammo;
 g.shoot();
@@ -377,7 +372,9 @@ g.keys.add('KeyW');
 g.updatePlayer(1);
 g.keys.clear();
 g.updatePlayer(0.01);
-check('Rotas ficam livres quando o round começa', () => assert.ok(g.player().pos.z < 18));
+check('Rotas ficam livres quando o round começa', () =>
+  assert.ok(g.player().pos.z < MAP.attackBarrier),
+);
 check('Competitivo usa 4s para plantar, 45s para detonar e 7s para desarmar', () => {
   const m = g.snapshot().mode;
   assert.equal(m.plant, 4);
@@ -419,7 +416,7 @@ g.plant(g.player());
 check('Spike não pode ser plantada fora dos pontos', () =>
   assert.equal(g.snapshot().spike.planted, false),
 );
-g.setPlayer({ x: -19, z: -10 });
+g.setPlayer({ ...SITES[0] });
 g.plant(g.player());
 check('Plantio ativa o dispositivo e o contador de 45 segundos', () => {
   assert.equal(g.snapshot().spike.planted, true);
@@ -445,7 +442,7 @@ check('Intervalo reinicia economia e equipamentos', () => {
 });
 g.beginRound();
 const enemyCarrier = g.snapshot().spike.carrier;
-enemyCarrier.pos = { x: 19, z: -10 };
+enemyCarrier.pos = { ...SITES[1] };
 g.plant(enemyCarrier);
 g.setPlayer({ ...enemyCarrier.pos });
 g.keys.add('KeyF');
@@ -485,7 +482,7 @@ check('Cada bomb possui quatro planos de entrada navegáveis', () => {
   for (const key of ['A', 'B']) {
     assert.equal(rules.ROUTES[key].length, 4);
     for (const route of rules.ROUTES[key]) {
-      let previous = { x: 0, z: 26 };
+      let previous = { ...SPAWNS.attack };
       for (const point of route.points) {
         assert.ok(g.world.path(previous, point).length > 0, route.name);
         previous = point;
@@ -506,7 +503,7 @@ g.setChosen(5);
 g.startMatch();
 g.beginRound();
 const empTarget = g.actors()[5];
-empTarget.pos = { x: 3, z: 26 };
+empTarget.pos = { x: 3, z: SPAWNS.attack.z };
 empTarget.armor = 50;
 g.setUltimate(6);
 g.skill(3);
@@ -529,7 +526,7 @@ g.setChosen(0);
 g.startMatch();
 g.beginRound();
 const hitTarget = g.actors()[5];
-hitTarget.pos = { x: 0, z: 20 };
+hitTarget.pos = { x: 0, z: SPAWNS.attack.z - 6 };
 hitTarget.armor = 0;
 for (const a of g.actors()) a.blind = 100;
 g.tick(0.01);
@@ -549,7 +546,7 @@ check('Partida competitiva completa termina com 13+ vitórias e dois de vantagem
 g.setChosen(7);
 g.startMatch();
 g.beginRound();
-g.setPlayer({ x: -3, z: 21 });
+g.setPlayer({ x: -12, z: 42 });
 g.skill(1);
 for (let i = 0; i < 30; i++) g.updatePlayer(0.05);
 check('Salto tático aterrissa sobre a cobertura e permite pular novamente', () => {
@@ -561,7 +558,7 @@ check('Salto tático aterrissa sobre a cobertura e permite pular novamente', () 
 });
 g.newRound();
 g.beginRound();
-g.setPlayer({ x: -26, z: 7 });
+g.setPlayer({ x: -32, z: 14 });
 g.skill(1);
 let maximumFeet = 0;
 for (let i = 0; i < 25; i++) {
@@ -569,6 +566,6 @@ for (let i = 0; i < 25; i++) {
   maximumFeet = Math.max(maximumFeet, g.snapshot().feet);
 }
 check('Teto do túnel impede saltos de atravessar a cobertura', () =>
-  assert.ok(maximumFeet <= 1.75),
+  assert.ok(maximumFeet <= 2.11),
 );
 console.log(`${count} verificações concluídas.`);

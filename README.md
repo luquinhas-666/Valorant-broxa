@@ -1,6 +1,33 @@
-# RUPTURE — Alpha 03
+# RUPTURE — Alpha 05
 
-FPS tático 3D para navegador, com identidade própria e mecânicas inspiradas no gênero de tiro tático com agentes. Feito com JavaScript, WebGL 2 e Three.js. **Versão alpha solo: competitivo 5 × 5 contra bots ou partida rápida 3 × 3.**
+FPS tático 3D para navegador, com identidade própria e mecânicas inspiradas no gênero de tiro tático com agentes. Feito com JavaScript, WebGL 2 e Three.js. **Alpha com modo solo e multiplayer em salas privadas: até 3 × 3 na partida rápida ou 5 × 5 no competitivo.**
+
+## Novo mapa — versão 05
+
+**Santa Luz · Distrito** foi reconstruído em uma arena de 96 × 96 unidades (antes 64 × 68), com três frentes e rotas conectadas:
+
+- **A:** jardim longo, galerias e túnel das flores.
+- **Meio:** praça disputável, quiosque, torre e saídas para os curtos dos dois bombs.
+- **B:** armazém coberto, canal longo e pátio.
+- **Defesa:** rotação norte, acesso pelo fundo de cada ponto e ligações para a retomada.
+- Novas coberturas, curvas, sinais, pisos e arquitetura delimitam os caminhos e interrompem linhas de tiro entre as bases.
+- **M abre o mapa tático**, com nomes das regiões e os planos de entrada. O minimapa usa a nova escala.
+- As barreiras de compra, os spawns, os bots e a simulação multiplayer usam o mesmo desenho do mapa.
+
+Veja [MAPA.md](MAPA.md) para conhecer as rotas e as medidas de percurso. A versão passou pelas 90 verificações solo, 30 multiplayer e 12 específicas do mapa. O balanceamento fino continua a partir de partidas reais.
+
+## Multiplayer com amigos — versão 04
+
+- Salas privadas com código, apelido, escolha de equipe e de agente.
+- Servidor que controla os movimentos, tiros, vida, habilidades, loja, economia, rounds e spike.
+- Bots opcionais para completar equipes; é possível jogar apenas 1 × 1 ou 2 × 2.
+- Compra com barreiras e confirmação de prontidão de todos os jogadores.
+- Reconexão automática em quedas breves, suavização dos movimentos e indicador de latência.
+- Servidor preparado para o Render Free; o jogo pode continuar no GitHub Pages.
+
+**Comece pelo [guia de multiplayer](MULTIPLAYER.md)**: ele explica como testar com `JOGAR-ONLINE.cmd`, hospedar o servidor e convidar os amigos. O servidor online exige **Node.js 22+**. O modo solo continua disponível em `JOGAR.cmd`.
+
+O código está pronto para configurar a hospedagem; nenhum servidor remoto foi publicado por este pacote. O GitHub Pages sozinho executa apenas o modo solo.
 
 ## Novidades da versão 03
 
@@ -80,7 +107,7 @@ Referência: [documentação oficial do GitHub Pages](https://docs.github.com/en
 - Bots com busca de caminhos, contatos visuais e sonoros, utilitários básicos, rajadas, recarga, plantio, recuperação da spike e desarme.
 - Minimapa com aliados, inimigos avistados e objetivos; placar; registro de eliminações; acompanhamento de aliados após morrer.
 - Efeitos sonoros gerados no navegador; ajustes de volume, sensibilidade e qualidade salvos localmente.
-- A partida pausa ao sair da aba ou abrir o menu.
+- No solo, a partida pausa ao sair da aba ou abrir o menu. No online, ela continua para todos.
 
 ## Agentes
 
@@ -113,19 +140,22 @@ Habilidades comuns são repostas a cada round. A ultimate exige 6 pontos; você 
 | Primária / pistola / faca | 1 / 2 / 3 |
 | Habilidades / ultimate | Q / E / C / X |
 | Comprar na base | B |
-| Começar o round antes do fim da compra | Enter |
+| Pronto (no online, todos confirmam ou aguardam o tempo) | Enter |
 | Plantar / desarmar | Segurar F sem se mover |
 | Soltar / entregar a spike | G |
 | Alternar plano de ataque A/B | Z |
 | Placar | Segurar Tab |
-| Pausar | Esc |
+| Mapa tático | M |
+| Abrir menu (pausa apenas no solo) | Esc |
 
 ## Estrutura
 
 - `index.html`, `style.css`: telas, loja e interface da partida.
 - `game.js`: entrada, combate, poderes, spike, economia e comportamento dos bots.
 - `rules.js`: modos de partida, troca de lados, condição de vitória e planos de entrada.
-- `world.js`: mapa 3D, personagens, colisão, linha de visão e rotas.
+- `world.js`: personagens, colisão, linha de visão e navegação.
+- `map-layout.js`: dimensões, áreas, spawns, pontos e planos de entrada compartilhados.
+- `arena.js`: arquitetura, coberturas, pisos e detalhes do novo Distrito.
 - `data.js`: dados de armas e agentes; ilustrações vetoriais da interface.
 - `arsenal.js`: modelos detalhados das armas e mãos em primeira pessoa.
 - `art.js`: iluminação, reflexos ambientais, detalhes arquitetônicos e agrupamento dos objetos do mapa.
@@ -134,18 +164,23 @@ Habilidades comuns são repostas a cada round. A ultimate exige 6 pontos; você 
 
 ## Escopo desta versão
 
-Este é um protótipo jogável com arte 3D procedural, um mapa e partidas solo contra bots. Não reproduz a qualidade gráfica, animações, mapas, balanceamento ou todos os sistemas de um FPS comercial. Personagens, armas, mapa e interface têm identidade própria; não inclui arquivos da Riot Games.
+Este é um protótipo jogável com arte 3D procedural, um mapa, partidas solo contra bots e salas privadas entre amigos. Não reproduz a qualidade gráfica, animações, mapas, balanceamento ou todos os sistemas de um FPS comercial. Personagens, armas, mapa e interface têm identidade própria; não inclui arquivos da Riot Games.
 
-Publicar no GitHub Pages permite que qualquer pessoa jogue sua própria partida pelo link. **Pessoas em computadores diferentes ainda não entram na mesma partida.** Multiplayer real exige um servidor de partidas, sincronização e validação do jogo no servidor; essa infraestrutura não faz parte desta versão.
+Publicar no GitHub Pages permite carregar o jogo pelo link. Para pessoas em computadores diferentes entrarem na mesma partida, publique também o servidor incluído em `server/` e informe seu endereço no jogo. Consulte `MULTIPLAYER.md`. As salas ficam na memória e encerram se o servidor reiniciar.
 
 O jogo foi conferido no navegador e as regras centrais foram verificadas em simulação. A configuração e a publicação no GitHub dependem de um repositório de destino; não há publicação automática configurada neste pacote.
 
 ## Verificações
 
-Com Node.js 18 ou superior instalado, execute `npm test`. Não é preciso instalar dependências. As 90 verificações cobrem compras, saldo, proteção, plantio pelo jogador e por bot, detonação, desarme, troca de lados, habilidades, limpeza de barreiras, dano, queda da spike, rotas, colisão, interiores atravessáveis, rotas de flanco, agrupamento do cenário, compra/carregador/reserva das 17 armas, preservação de secundárias, partidas completas nos dois modos, barreiras da compra, os oito agentes, ultimates, planos de ataque, transporte da spike, metade do desarme, regras da prorrogação e física de salto/tetos. A simulação usa a biblioteca 3D real e substitui a tela e o áudio por objetos de teste; ela não mede desempenho gráfico nem substitui testes de mira e movimentação no navegador.
+Com Node.js 22 ou superior instalado, execute `npm test`, `npm run test:online` e `npm run test:map`. Não é preciso instalar dependências. As 90 verificações solo cobrem compras, saldo, proteção, plantio pelo jogador e por bot, detonação, desarme, troca de lados, habilidades, limpeza de barreiras, dano, queda da spike, rotas, colisão, interiores atravessáveis, rotas de flanco, agrupamento do cenário, compra/carregador/reserva das 17 armas, preservação de secundárias, partidas completas nos dois modos, barreiras da compra, os oito agentes, ultimates, planos de ataque, transporte da spike, metade do desarme, regras da prorrogação e física de salto/tetos. A simulação usa a biblioteca 3D real e substitui a tela e o áudio por objetos de teste; ela não mede desempenho gráfico nem substitui testes de mira e movimentação no navegador.
 
 Na prévia do navegador também foi concluída uma entrada real no ponto A com fumaça, avanço, plantio da spike e contagem de proteção do ponto. Foram conferidos a seleção 3D dos agentes, as zonas de compra com barreiras, a compra de armas/escudos, o consumo de munição ao disparar, a movimentação, a névoa, a barreira, a pausa e a troca de lados. A prévia integrada bloqueou a captura do cursor, por isso essa revisão usou o modo de mouse livre.
+
+As 30 verificações multiplayer incluem duas conexões WebSocket reais, credenciais, regras de sala, reconexão, compra, combate entre humanos, economia, bots opcionais, plantio/desarme e transição de rounds. Duas abas do navegador também entraram na mesma partida e receberam o plantio real da spike.
 
 ## Créditos de terceiros
 
 Three.js: Copyright © 2010–2024 three.js authors. Licença em [`vendor/THREE-LICENSE.txt`](vendor/THREE-LICENSE.txt). As demais imagens, geometrias e sons são criados pelo próprio código deste projeto.
+
+WebSocket: ws 8.22.1, licença MIT em `server/vendor/ws/LICENSE`.
+

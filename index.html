@@ -25,18 +25,21 @@
     <main id="menu" class="screen hidden">
       <header class="nav">
         <a class="wordmark" href="./"
-          ><span class="brand-mark">R</span> RUPTURE<span class="alpha">ALPHA 03</span></a
+          ><span class="brand-mark">R</span> RUPTURE<span class="alpha">ALPHA 05</span></a
         ><span class="nav-center">FPS TÁTICO · NO SEU NAVEGADOR</span
         ><button class="text-button" id="help-btn">COMO JOGAR <span>↗</span></button>
       </header>
       <section class="hero">
-        <div class="eyebrow"><i></i> OPERAÇÃO 003 / SANTA LUZ</div>
+        <div class="eyebrow"><i></i> OPERAÇÃO 005 / SANTA LUZ</div>
         <h1>ENTRE.<br />MIRE.<br /><span>DECIDA.</span></h1>
         <p class="hero-copy">
           Cada ângulo importa. Cada poder muda o round.<br />Escolha seu agente e conquiste o ponto.
         </p>
         <button class="primary play-button" id="play">
           <span>INICIAR OPERAÇÃO</span><b>↗</b>
+        </button>
+        <button class="secondary online-button" id="online-btn">
+          JOGAR COM AMIGOS <span>↗</span>
         </button>
         <div class="mode-switch" aria-label="Modo de partida">
           <button id="mode-competitive">COMPETITIVO <b>5 × 5</b></button
@@ -57,8 +60,8 @@
         <div class="map-card-top"><span>MAPA EM DESTAQUE</span><span>01 / 01</span></div>
         <div class="map-illustration"><span>A</span><i></i><span>B</span></div>
         <h2>SANTA LUZ</h2>
-        <p>Ruas estreitas. Céu aberto. Nenhum ângulo seguro.</p>
-        <div class="map-meta"><span>◆ DOIS PONTOS DE SPIKE</span><span>☀ 16:42</span></div>
+        <p>Três frentes. Rotas conectadas. Conquiste o meio.</p>
+        <div class="map-meta"><span>◆ DISTRITO 96 × 96</span><span>☀ 16:42</span></div>
       </aside>
       <footer class="menu-footer">
         <div class="agents-block">
@@ -67,13 +70,91 @@
         </div>
         <div class="session-info">
           <span class="status-dot"></span> PRONTO PARA JOGAR
-          <p>EXPERIÊNCIA SOLO · TECLADO + MOUSE</p>
+          <p>SOLO OU SALAS PRIVADAS · TECLADO + MOUSE</p>
         </div>
       </footer>
       <div class="build-tag">RUPTURE PROJECT / WEBGL 2.0</div>
     </main>
 
+    <section id="online" class="overlay hidden" aria-label="Salas privadas">
+      <div class="online-panel">
+        <header class="panel-header">
+          <div>
+            <small>SEU ESQUADRÃO. SUA PARTIDA.</small>
+            <h2>JOGAR COM AMIGOS</h2>
+          </div>
+          <button id="online-close" class="close-button" aria-label="Fechar salas">×</button>
+        </header>
+        <div id="online-setup">
+          <div class="online-fields">
+            <label
+              >SEU APELIDO<input
+                id="nickname"
+                maxlength="18"
+                placeholder="Como seus amigos te chamam"
+                autocomplete="nickname" /></label
+            ><label
+              >ENDEREÇO DO SERVIDOR<input
+                id="server-url"
+                type="url"
+                placeholder="https://seu-servidor.onrender.com"
+            /></label>
+          </div>
+          <p class="online-hint">
+            Todos devem usar o mesmo servidor. Na primeira conexão, o servidor gratuito pode levar
+            cerca de um minuto para despertar.
+          </p>
+          <div class="online-columns">
+            <section>
+              <h3>CRIE SUA SALA</h3>
+              <p>Convide seus amigos pelo código e monte as equipes.</p>
+              <label
+                >MODO<select id="online-mode">
+                  <option value="quick">Rápida · até 3 × 3</option>
+                  <option value="competitive">Competitivo · até 5 × 5</option>
+                </select></label
+              ><label class="check-label"
+                ><input type="checkbox" id="online-bots" /> Preencher vagas com bots</label
+              ><button id="online-create" class="primary">CRIAR SALA →</button>
+            </section>
+            <section>
+              <h3>JUNTE-SE AO ESQUADRÃO</h3>
+              <p>Recebeu um convite? Informe o código da sala.</p>
+              <label
+                >CÓDIGO DA SALA<input
+                  id="join-code"
+                  maxlength="6"
+                  placeholder="A1B2C3"
+                  autocomplete="off" /></label
+              ><button id="online-join" class="secondary">ENTRAR NA SALA →</button>
+            </section>
+          </div>
+        </div>
+        <div id="online-lobby" class="hidden">
+          <div class="room-invite">
+            <div><small>CÓDIGO DA SALA</small><strong id="room-code"></strong></div>
+            <button id="copy-code" class="secondary">COPIAR CÓDIGO</button>
+          </div>
+          <p id="lobby-mode"></p>
+          <div id="lobby-players" class="online-columns"></div>
+          <div class="online-fields">
+            <label
+              >SUA EQUIPE<select id="online-team">
+                <option value="0">Azul</option>
+                <option value="1">Vermelha</option>
+              </select></label
+            ><label>SEU AGENTE<select id="online-agent"></select></label>
+          </div>
+          <div class="online-actions">
+            <button id="online-start" class="primary">INICIAR PARTIDA →</button
+            ><button id="online-leave" class="text-button">SAIR DA SALA</button>
+          </div>
+        </div>
+        <p id="online-status" role="status" aria-live="polite"></p>
+      </div>
+    </section>
     <div id="hud" class="hidden">
+      <div id="net-info"></div>
       <div class="top-score">
         <div class="team-strip" id="team-blue"></div>
         <strong id="score-blue">0</strong>
@@ -128,8 +209,8 @@
         </div>
       </div>
       <div class="bottom-shortcuts">
-        <span><kbd>B</kbd> LOJA</span><span><kbd>TAB</kbd> PLACAR</span
-        ><span><kbd>ESC</kbd> PAUSAR</span
+        <span><kbd>B</kbd> LOJA</span><span><kbd>M</kbd> MAPA</span
+        ><span><kbd>TAB</kbd> PLACAR</span><span><kbd>ESC</kbd> MENU</span
         ><span id="free-mouse-hint" class="hidden"
           >MOUSE LIVRE · SEGURE O BOTÃO DIREITO PARA OLHAR</span
         ><span id="credits">¤ 800</span>
@@ -138,6 +219,48 @@
       <div id="scope" class="hidden"><i></i><b></b></div>
     </div>
 
+    <section id="tactical-map" class="overlay hidden" aria-label="Mapa tático de Santa Luz">
+      <div class="tactical-panel">
+        <header>
+          <div>
+            <small>CONHEÇA AS CONEXÕES. ESCOLHA SEU AVANÇO.</small>
+            <h2>SANTA LUZ · DISTRITO</h2>
+          </div>
+          <span><kbd>M</kbd> FECHAR</span>
+        </header>
+        <div class="tactical-body">
+          <canvas
+            id="tactical-canvas"
+            width="800"
+            height="800"
+            aria-label="Planta da arena com rotas e jogadores avistados"
+          ></canvas>
+          <aside>
+            <h3>TRÊS FRENTES</h3>
+            <p>
+              <b>A · JARDIM</b>Escolha a galeria coberta ou o jardim longo. O túnel conecta os dois
+              caminhos.
+            </p>
+            <p>
+              <b>MEIO · PRAÇA</b>Ganhe espaço para dividir a defesa pelos curtos. A torre interrompe
+              a visão entre as bases.
+            </p>
+            <p>
+              <b>B · ARMAZÉM</b>Entre pelo armazém ou abra o canal. Confira os cantos antes de
+              atravessar o pátio.
+            </p>
+            <p>
+              <b>DEFESA · NORTE</b>Use a rotação para reforçar A ou B. Retome pelo fundo ou dispute
+              os acessos do meio.
+            </p>
+            <div class="map-legend">
+              <span>● Você / aliados</span><span>● Inimigos avistados</span><span>◇ Spike</span>
+            </div>
+            <small>O round continua com o mapa aberto.</small>
+          </aside>
+        </div>
+      </div>
+    </section>
     <section id="shop" class="overlay hidden" aria-label="Loja de equipamentos">
       <div class="shop-panel">
         <header class="panel-header">
@@ -237,6 +360,7 @@
         <p><kbd>G</kbd> Soltar a spike para um aliado</p>
         <p><kbd>Z</kbd> Alternar plano de ataque A / B</p>
         <p><kbd>TAB</kbd> Placar</p>
+        <p><kbd>M</kbd> Abrir / fechar mapa tático</p>
       </div>
       <p>
         <b>Ataque:</b> no competitivo, leve a spike até A ou B e segure F por 4 segundos. Proteja-a
@@ -246,9 +370,10 @@
         após o plantio.
       </p>
       <p class="help-note">
-        Bots aliados podem carregar a spike após sua eliminação. A partida pausa ao abrir o menu ou
-        sair da aba. Versão solo para computador; multiplayer entre pessoas requer servidor
-        adicional.
+        Bots aliados podem carregar a spike após sua eliminação. No modo solo, o menu pausa a
+        partida. Nas salas online a partida continua para todos. Use Jogar com amigos para criar uma
+        sala. Enter confirma que você está pronto; o round começa quando todos confirmarem ou o
+        tempo de compra acabar.
       </p>
     </dialog>
     <div id="fatal" class="overlay hidden">
