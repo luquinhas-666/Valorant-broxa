@@ -1,0 +1,11 @@
+{
+  "name": "rupture-web-fps",
+  "version": "0.3.0",
+  "private": true,
+  "type": "module",
+  "description": "FPS tático 3D com agentes e bots, compatível com GitHub Pages",
+  "scripts": {
+    "start": "node serve.mjs",
+    "test": "node --experimental-vm-modules tests/game.test.mjs"
+  }
+}
