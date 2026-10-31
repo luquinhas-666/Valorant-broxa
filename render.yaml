@@ -1,0 +1,9 @@
+services:
+  - type: web
+    name: rupture-amigos
+    runtime: node
+    plan: free
+    buildCommand: node --check server/server.mjs
+    startCommand: node --experimental-vm-modules server/server.mjs
+    healthCheckPath: /health
+    autoDeployTrigger: commit
