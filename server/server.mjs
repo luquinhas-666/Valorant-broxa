@@ -132,6 +132,9 @@ async function start(ws, room) {
   }
 }
 const mime = {
+  '.wav': 'audio/wav',
+  '.jpg': 'image/jpeg',
+  '.glb': 'model/gltf-binary',
   '.html': 'text/html; charset=utf-8',
   '.js': 'text/javascript; charset=utf-8',
   '.css': 'text/css; charset=utf-8',
@@ -141,7 +144,7 @@ const server = http.createServer(async (req, res) => {
   const pathname = new URL(req.url, 'http://localhost').pathname;
   if (pathname === '/health') {
     res.writeHead(200, { 'Content-Type': 'application/json' });
-    res.end('{"ok":true,"game":"RUPTURE","version":5}');
+    res.end('{"ok":true,"game":"RUPTURE","version":8}');
     return;
   }
   try {
@@ -150,7 +153,7 @@ const server = http.createServer(async (req, res) => {
     if (
       !filename.startsWith(root) ||
       decoded.startsWith('/server/') ||
-      !['.html', '.js', '.css', '.svg'].includes(path.extname(filename))
+      !['.html', '.js', '.css', '.svg', '.glb', '.wav', '.jpg'].includes(path.extname(filename))
     )
       throw Error('Forbidden');
     const body = await readFile(filename);

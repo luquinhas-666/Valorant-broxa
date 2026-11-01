@@ -1,3 +1,8 @@
+import { GameAudio, preloadSounds } from './audio.js';
+import { CombatFeedback } from './combat-fx.js';
+import { loadEnvironmentAssets } from './environment.js';
+import { surfaceAt } from './map-layout.js';
+import { loadModelAssets } from './models.js';
 import { setupOnline } from './online.js';
 import * as T from './vendor/three.module.js';
 import { MODES, attackSide, matchWinner, ROUTES } from './rules.js';
@@ -11,6 +16,31 @@ const $ = (id) => document.getElementById(id),
 const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
 const dist = (a, b) => Math.hypot(a.x - b.x, a.z - b.z);
 const vec = (p, y = 1.4) => new T.Vector3(p.x, y, p.z);
+const [assetReport, environmentReport] = await Promise.all([
+  loadModelAssets(),
+  loadEnvironmentAssets(),
+  preloadSounds(),
+]);
+function disposeModelTree(root) {
+  const geometries = new Set(),
+    materials = new Set(),
+    skeletons = new Set();
+  root.traverse((o) => {
+    if (o.geometry && !geometries.has(o.geometry)) {
+      geometries.add(o.geometry);
+      o.geometry.dispose();
+    }
+    for (const m of Array.isArray(o.material) ? o.material : o.material ? [o.material] : [])
+      if (!materials.has(m)) {
+        materials.add(m);
+        m.dispose();
+      }
+    if (o.skeleton && !skeletons.has(o.skeleton)) {
+      skeletons.add(o.skeleton);
+      o.skeleton.dispose();
+    }
+  });
+}
 let renderer, world, scene, camera;
 export { world as arenaWorld };
 let multiplayerServer = false,
@@ -49,6 +79,12 @@ try {
   throw error;
 }
 
+const combatFX = new CombatFeedback(scene, {
+  canvas: $('game'),
+  flash: $('damage-flash'),
+  direction: $('damage-direction'),
+  killer: $('death-killer'),
+});
 let settings = { sensitivity: 1, volume: 0.35, quality: 'high' };
 try {
   Object.assign(settings, JSON.parse(localStorage.getItem('rupture-settings') || '{}'));
@@ -119,7 +155,6 @@ let yaw = 0,
 let toastTime = 0,
   killConfirmTime = 0,
   hitTime = 0,
-  damageTime = 0,
   flashTime = 0,
   phaseTime = 0,
   worldTime = 0,
@@ -152,10 +187,7 @@ function buildGun() {
   for (const child of [...gun.children])
     if (child !== gunFlash) {
       gun.remove(child);
-      child.traverse((o) => {
-        o.geometry?.dispose();
-        if (o.material) o.material.dispose();
-      });
+      disposeModelTree(child);
     }
   const instance = weapon(),
     model = createWeaponModel(instance.id, WEAPONS[instance.id], agents.color);
@@ -165,75 +197,38 @@ function buildGun() {
   gun.rotation.set(0, 0, 0);
 }
 let audio = null;
-function sound(type, volume = 1) {
-  if (!audio || audio.state !== 'running' || settings.volume === 0) return;
-  const now = audio.currentTime,
-    g = audio.createGain();
-  g.connect(audio.destination);
-  g.gain.setValueAtTime(settings.volume * volume, now);
-  const osc = audio.createOscillator();
-  osc.connect(g);
-  let duration = 0.12;
-  osc.type = 'triangle';
-  if (type === 'shot') {
-    osc.type = 'sawtooth';
-    osc.frequency.setValueAtTime(125, now);
-    osc.frequency.exponentialRampToValueAtTime(38, now + 0.09);
-    g.gain.setValueAtTime(settings.volume * 0.13 * volume, now);
-    duration = 0.12;
-  } else if (type === 'hit') {
-    osc.type = 'sine';
-    osc.frequency.setValueAtTime(900, now);
-    osc.frequency.exponentialRampToValueAtTime(390, now + 0.06);
-    duration = 0.07;
-    g.gain.setValueAtTime(settings.volume * 0.25, now);
-  } else if (type === 'kill') {
-    osc.frequency.setValueAtTime(500, now);
-    osc.frequency.setValueAtTime(800, now + 0.08);
-    duration = 0.2;
-    g.gain.setValueAtTime(settings.volume * 0.18, now);
-  } else if (type === 'beep') {
-    osc.type = 'sine';
-    osc.frequency.value = 1800;
-    duration = 0.08;
-    g.gain.setValueAtTime(settings.volume * 0.12 * volume, now);
-  } else if (type === 'step') {
-    osc.type = 'triangle';
-    osc.frequency.setValueAtTime(100, now);
-    osc.frequency.exponentialRampToValueAtTime(35, now + 0.05);
-    duration = 0.06;
-    g.gain.setValueAtTime(settings.volume * 0.08, now);
-  } else if (type === 'buy') {
-    osc.frequency.setValueAtTime(650, now);
-    osc.frequency.setValueAtTime(950, now + 0.07);
-    duration = 0.16;
-    g.gain.setValueAtTime(settings.volume * 0.15, now);
-  } else if (type === 'reload') {
-    osc.type = 'square';
-    osc.frequency.value = 240;
-    duration = 0.07;
-    g.gain.setValueAtTime(settings.volume * 0.05, now);
-  } else if (type === 'explosion') {
-    osc.type = 'sawtooth';
-    osc.frequency.setValueAtTime(130, now);
-    osc.frequency.exponentialRampToValueAtTime(20, now + 1.1);
-    duration = 1.2;
-    g.gain.setValueAtTime(settings.volume * 0.25, now);
-  } else {
-    osc.frequency.setValueAtTime(350, now);
-    osc.frequency.exponentialRampToValueAtTime(950, now + 0.25);
-    duration = 0.35;
-    g.gain.setValueAtTime(settings.volume * 0.12, now);
+function sound(type, volume = 1, position = null, variant = '', to = null) {
+  const ui = ['hit', 'hurt', 'kill', 'buy'].includes(type);
+  if (!position && ['shot', 'step', 'reload', 'skill', 'hurt', 'knife'].includes(type))
+    position = player?.pos;
+  if (type === 'shot' && !variant) variant = weapon().id;
+  if (type === 'step' && !variant) variant = surfaceAt(position || { x: 0, z: 0 });
+  if (multiplayerServer) {
+    networkSounds.push({
+      id: ++netSequence,
+      at: worldTime,
+      type,
+      volume,
+      position: position ? { x: position.x, z: position.z } : null,
+      variant,
+      to: to || (ui ? player?.id : null),
+    });
+    if (networkSounds.length > 64) networkSounds.shift();
+    return;
   }
-  g.gain.exponentialRampToValueAtTime(0.0001, now + duration);
-  osc.start(now);
-  osc.stop(now + duration);
+  if (!audio) return;
+  const blocked =
+    position &&
+    Math.hypot(position.x - camera.position.x, position.z - camera.position.z) > 3 &&
+    !world.clearLine(vec(camera.position, 1.5), vec(position, 1.5));
+  audio.play(type, volume, position, variant, !!blocked);
 }
 function initAudio() {
   if (!audio)
     try {
-      audio = new (window.AudioContext || window.webkitAudioContext)();
+      audio = new GameAudio(new (window.AudioContext || window.webkitAudioContext)());
     } catch {}
+  audio?.update(camera.position, yaw, settings.volume);
   audio?.resume().catch(() => {});
 }
 function toast(text) {
@@ -294,10 +289,8 @@ function setAim(value) {
 function previewAgent() {
   if (previewModel) {
     camera.remove(previewModel.group);
-    previewModel.group.traverse((o) => {
-      o.geometry?.dispose();
-      o.material?.dispose();
-    });
+    previewModel.dispose?.();
+    disposeModelTree(previewModel.group);
   }
   previewModel = createSoldier(agents.color, false, agents.id);
   previewModel.group.position.set(1.6, -2.4, -4.8);
@@ -522,10 +515,8 @@ function startMatch() {
 }
 function disposeActor(a) {
   scene.remove(a.model.group);
-  a.model.group.traverse((o) => {
-    o.geometry?.dispose();
-    if (o.material) o.material.dispose();
-  });
+  a.model.dispose?.();
+  disposeModelTree(a.model.group);
 }
 function clearEffects() {
   for (const e of effects) {
@@ -547,6 +538,7 @@ function clearEffects() {
   dangerZones = [];
 }
 function newRound() {
+  if (!multiplayerServer) combatFX.reset();
   clearEffects();
   clearDrop();
   if (spikeModel) spikeModel.visible = false;
@@ -586,6 +578,7 @@ function newRound() {
     a.hp = 100;
     if (!a.isPlayer) botLoadout(a, overtime ? 5000 : halftime ? 800 : false);
     a.alive = true;
+    a.lastImpact = null;
     a.slow = 0;
     a.stim = 0;
     a.disarmed = 0;
@@ -595,7 +588,7 @@ function newRound() {
     a.utility = 2;
     a.utilityTime = 4 + Math.random() * 5;
     a.routeStep = 0;
-    a.plan = actors.filter((b) => b.team === a.team).indexOf(a) % 4;
+    a.plan = actors.filter((b) => b.team === a.team).indexOf(a) % ROUTES.A.length;
     a.muzzleTime = 0;
     a.model.muzzle.visible = false;
     a.blind = 0;
@@ -612,6 +605,7 @@ function newRound() {
     a.heading = attacking ? 0 : Math.PI;
     a.model.group.visible = !a.isPlayer;
     a.model.badge.visible = a.team === 0;
+    a.model.setAlive?.(true);
     a.model.group.rotation.z = 0;
     a.model.group.scale.setScalar(1);
     a.model.group.position.set(a.pos.x, 0, a.pos.z);
@@ -683,6 +677,7 @@ function beginRound() {
 function finishRound(winner, reason) {
   if (state !== 'live') return;
   state = 'end';
+  if (reason.includes('desarmad')) sound('defuse', 1, spike.pos);
   spike.reason = reason;
   spike.outcome = spike.planted
     ? winner === attackTeam
@@ -725,7 +720,8 @@ function finishRound(winner, reason) {
   $('phase-sub').textContent = `${reason} · +${reward.toLocaleString('pt-BR')} créditos`;
   show('phase-banner');
   refreshHUD();
-  sound(won ? 'kill' : 'start');
+  if (multiplayerServer) sound('round', 1, null, String(winner));
+  else sound(won ? 'roundWin' : 'roundLoss');
 }
 function endMatch() {
   state = 'match';
@@ -741,6 +737,7 @@ function endMatch() {
     `${kills} eliminações · ${deaths} mortes · ${headshots} tiros na cabeça · ${agents.name}`;
 }
 function returnMenu() {
+  combatFX.reset();
   tacticalOpen = false;
   hide('tactical-map');
   if (onlineGame) {
@@ -909,17 +906,36 @@ function damage(target, amount, attacker, head = false) {
   const absorbed = Math.min(target.armor, amount * 0.65);
   target.armor -= absorbed;
   target.hp = Math.max(0, target.hp - (amount - absorbed));
+  target.lastImpact = {
+    seq: (target.impactSeq = (target.impactSeq || 0) + 1),
+    at: worldTime,
+    head,
+    shielded: absorbed > 0,
+    amount,
+    from: attacker ? { ...attacker.pos } : null,
+    attacker: attacker?.name || 'AMBIENTE',
+  };
+  if (!multiplayerServer) {
+    combatFX.impact(target, target.lastImpact);
+    if (target === player) combatFX.hurt(target.pos, attacker?.pos, amount);
+  }
   if (target === player) {
-    damageTime = 0.4;
-    sound('hit');
+    sound('hurt', 0.7, target.pos, '', target.id);
     interactProgress = spike.planted ? spike.defuseFloor || 0 : 0;
     refreshHUD();
   }
+  if (multiplayerServer && target.netData && target !== player)
+    sound('hurt', 0.7, target.pos, '', target.id);
   target.plant = 0;
   target.defuse = spike.defuseFloor || 0;
   if (target.netData) target.netData.interactProgress = spike.planted ? spike.defuseFloor || 0 : 0;
   if (target.hp > 0) return;
   target.alive = false;
+  if (!multiplayerServer) {
+    combatFX.eliminate(target);
+    if (target === player)
+      combatFX.die({ ...target.pos, y: feet }, yaw, attacker?.name || 'AMBIENTE');
+  }
   target.deaths++;
   if (attacker && attacker !== target) {
     attacker.kills++;
@@ -960,9 +976,10 @@ function damage(target, amount, attacker, head = false) {
     show('spectator');
     specTarget = actors.find((a) => a.team === myTeam() && a.alive) || null;
   } else {
-    target.model.group.rotation.z = Math.PI / 2;
-    target.model.group.position.y = 0.3;
-    target.model.group.scale.setScalar(0.8);
+    target.model.setAlive?.(false);
+    target.model.group.rotation.z = target.model.imported ? 0 : Math.PI / 2;
+    target.model.group.position.y = target.model.imported ? 0 : 0.3;
+    target.model.group.scale.setScalar(target.model.imported ? 1 : 0.8);
     target.model.badge.visible = false;
   }
   drawTeams();
@@ -1010,7 +1027,7 @@ function shoot() {
   recoil = Math.min(0.16, recoil + 0.028);
   spreadKick = Math.min(0.032, spreadKick + 0.004);
   gunFlash.visible = instance.id !== 'knife';
-  sound('shot', w.silenced ? 0.5 : 1);
+  sound('shot', w.silenced ? 0.4 : 1, player.pos, instance.id);
   const direction = new T.Vector3();
   camera.getWorldDirection(direction);
   let hitAnything = false;
@@ -1052,6 +1069,7 @@ function shoot() {
       hitTime = 0.17;
       $('hitmarker').style.color = head ? '#ff7181' : '#fff';
     } else if (hit && instance.id !== 'knife') {
+      if (pellet === 0) sound('impact', 0.4, hit.point);
       const spark = new T.Mesh(
         new T.SphereGeometry(0.045, 4, 4),
         new T.MeshBasicMaterial({ color: '#ffe1ac' }),
@@ -1115,7 +1133,7 @@ function skill(index) {
   const p = player.pos,
     d = new T.Vector3();
   camera.getWorldDirection(d);
-  sound('skill');
+  sound('skill', 0.8, player.pos, s.kind);
   if (s.kind === 'dash') {
     const forward = keys.has('KeyS') ? -1 : 1,
       strafe = (keys.has('KeyD') ? 1 : 0) - (keys.has('KeyA') ? 1 : 0);
@@ -1299,6 +1317,7 @@ function skill(index) {
       toast('Aproxime-se de um aliado eliminado, até 10 metros.');
     } else {
       fallen.alive = true;
+      fallen.model.setAlive?.(true);
       fallen.hp = 100;
       fallen.armor = 0;
       fallen.model.group.rotation.z = 0;
@@ -1330,7 +1349,7 @@ function skill(index) {
         world.clearLine(vec(a.pos), t.clone().setY(1.3))
       )
         damage(a, (s.kind === 'rocket' ? 170 : 90) * (1 - (0.5 * dist(a.pos, t)) / radius), player);
-    sound('explosion');
+    sound('explosion', 1, t);
     toast(s.kind === 'rocket' ? 'RUPTURA · explosão no ponto de mira' : 'Fragmento lançado');
   }
   refreshHUD();
@@ -1444,7 +1463,7 @@ function plant(actor) {
   toast(
     `SPIKE PLANTADA EM ${site.name} · ${actor.team === 0 ? 'Proteja o ponto' : 'Desarme a spike!'}`,
   );
-  sound('start');
+  sound('plant', 1, spike.pos);
   refreshHUD();
 }
 function updateObjective(dt, timers = true, interaction = true) {
@@ -1472,12 +1491,12 @@ function updateObjective(dt, timers = true, interaction = true) {
     spike.time -= dt;
     beepTimer -= dt;
     if (beepTimer <= 0) {
-      sound('beep', player.alive ? Math.max(0.08, 1 - dist(player.pos, spike.pos) / 45) : 0.6);
+      sound('beep', 0.8, spike.pos);
       beepTimer = spike.time < 7 ? 0.25 : spike.time < 15 ? 0.5 : 1;
     }
     if (spike.time <= 0) {
       effectSphere(vec(spike.pos, 1), 1, '#a6fff0', 2, 'explosion');
-      sound('explosion');
+      sound('explosion', 1, spike.pos);
       finishRound(attackTeam, 'Spike detonada');
       return;
     }
@@ -1512,7 +1531,10 @@ function updateObjective(dt, timers = true, interaction = true) {
     if (keys.has('KeyF') && moving < 0.1) {
       if (spike.planted) interactProgress = Math.max(interactProgress, spike.defuseFloor || 0);
       interactProgress += dt;
-      if (spike.planted && interactProgress >= mode.defuse / 2) spike.defuseFloor = mode.defuse / 2;
+      if (spike.planted && interactProgress >= mode.defuse / 2) {
+        if (!spike.defuseFloor) sound('checkpoint', 0.7, spike.pos);
+        spike.defuseFloor = mode.defuse / 2;
+      }
       if (interactProgress >= required) {
         if (spike.planted) {
           credits = Math.min(9000, credits + 300);
@@ -1657,6 +1679,7 @@ function chooseGoal(a) {
 function botUtility(a, target) {
   if (a.utility <= 0 || a.utilityTime > 0 || !target) return;
   const kind = a.agent.skills[1].kind;
+  sound('skill', 0.6, a.pos, kind);
   a.utility--;
   a.utilityTime = 14;
   if (kind === 'smoke' && dist(a.pos, target.pos) > 10) {
@@ -1738,6 +1761,7 @@ function updateBots(dt) {
         if (a.ammo <= 0) {
           if (a.reserve > 0) {
             a.reloadTime = w.reload;
+            sound('reload', 0.65, a.pos);
           } else {
             a.weaponId = 'pulse';
             a.ammo = 12;
@@ -1754,7 +1778,7 @@ function updateBots(dt) {
             vec(target.pos, target.isPlayer ? feet + 1.35 : 1.35),
             a.team === 0 ? '#b8fff0' : '#ffa77e',
           );
-          sound('shot', 0.12 * Math.max(0, 1 - best / 45));
+          sound('shot', WEAPONS[a.weaponId].silenced ? 0.4 : 1, a.pos, a.weaponId);
           const chance = clamp(
             0.68 - best * 0.011 - (target.isPlayer && moving > 3 ? 0.17 : 0),
             0.15,
@@ -1788,7 +1812,10 @@ function updateBots(dt) {
       } else if (defusing) {
         a.route = [];
         a.defuse = Math.max(a.defuse, spike.defuseFloor || 0) + dt;
-        if (a.defuse >= mode.defuse / 2) spike.defuseFloor = mode.defuse / 2;
+        if (a.defuse >= mode.defuse / 2) {
+          if (!spike.defuseFloor) sound('checkpoint', 0.7, spike.pos);
+          spike.defuseFloor = mode.defuse / 2;
+        }
         if (a.defuse >= mode.defuse) {
           finishRound(1 - attackTeam, 'Spike desarmada por ' + a.name);
           break;
@@ -1823,6 +1850,11 @@ function updateBots(dt) {
         if (!walking) a.routeTime = 0;
       }
     }
+    a.stepCooldown = (a.stepCooldown || 0) - dt;
+    if (walking && !target && a.stepCooldown <= 0) {
+      sound('step', 0.8, a.pos, surfaceAt(a.pos));
+      a.stepCooldown = 0.42;
+    }
     a.walking = walking ? a.walking + dt * 8 : 0;
     a.model.group.position.set(
       a.pos.x,
@@ -1830,7 +1862,8 @@ function updateBots(dt) {
       a.pos.z,
     );
     a.model.group.rotation.y = a.heading;
-    a.model.animate(walking, a.walking, !!target);
+    a.model.setWeapon?.(a.weaponId);
+    a.model.animate(walking, a.walking, !!target, dt);
     a.model.badge.visible = a.team === 0 || a.reveal > 0 || (player.alive && visible(player, a));
   }
 }
@@ -1912,6 +1945,7 @@ function updatePlayer(dt) {
   if (fireHeld) shoot();
 }
 function spectatorCamera(dt) {
+  if (!multiplayerServer && combatFX.deathCamera(camera)) return;
   if (specTarget && !specTarget.alive)
     specTarget = actors.find((a) => a.team === myTeam() && a.alive) || null;
   if (specTarget) {
@@ -1927,6 +1961,8 @@ function spectatorCamera(dt) {
   }
 }
 function updateVisuals(dt) {
+  for (const a of actors)
+    if (!a.alive && a.model.imported) a.model.animate(false, worldTime, false, dt);
   recoil = Math.max(0, recoil - dt * 0.36);
   const w = WEAPONS[weapon().id],
     scoped = aim && !!w.scope && player?.alive;
@@ -1954,8 +1990,9 @@ function updateVisuals(dt) {
   $('crosshair').style.opacity = scoped ? '0' : aim ? '.5' : '1';
   hitTime = Math.max(0, hitTime - dt);
   $('hitmarker').style.opacity = hitTime > 0 ? '1' : '0';
-  damageTime = Math.max(0, damageTime - dt);
-  $('damage-flash').style.opacity = damageTime;
+  if (!multiplayerServer) combatFX.update(dt, camera, player);
+  if (!player?.alive && specTarget && (!combatFX.death || combatFX.death.age >= 0.85))
+    specTarget.model.group.visible = false;
   flashTime = Math.max(0, flashTime - dt);
   $('flash').style.opacity = flashTime;
   if (toastTime > 0) {
@@ -2125,7 +2162,7 @@ function update(dt) {
     if (previewModel) {
       previewModel.group.visible = true;
       previewModel.group.rotation.y = Math.PI + 0.12 + Math.sin(worldTime * 0.5) * 0.08;
-      previewModel.animate(false, worldTime);
+      previewModel.animate(false, worldTime, false, dt);
     }
     gun.visible = false;
     const a = Math.sin(worldTime * 0.055) * 0.13;
@@ -2190,6 +2227,7 @@ function frame(now) {
   const dt = Math.min((now - previous) / 1000, 0.05);
   previous = now;
   try {
+    audio?.update(camera.position, camera.rotation.y, settings.volume);
     update(dt);
     renderer.render(scene, camera);
   } catch (e) {
@@ -2370,12 +2408,15 @@ buildGun();
 gun.visible = false;
 hide('loading');
 show('menu');
+if (assetReport.failed.length || environmentReport.failed)
+  toast('Alguns modelos não carregaram. O jogo iniciou com os visuais alternativos.');
 requestAnimationFrame(frame);
 
 // Both the online server and solo mode use the same collisions, guns and rules.
 let netSequence = 0,
   netReady = new Set(),
-  networkFeed = [];
+  networkFeed = [],
+  networkSounds = [];
 function humanState() {
   return {
     primary,
@@ -2391,6 +2432,7 @@ function humanState() {
     feet,
     grounded,
     moving,
+    footTimer,
     bob,
     recoil,
     spreadKick,
@@ -2421,6 +2463,7 @@ function loadHuman(h) {
     feet,
     grounded,
     moving,
+    footTimer,
     bob,
     recoil,
     spreadKick,
@@ -2474,6 +2517,7 @@ function freshHuman(a, reset = 800) {
     feet: 0,
     grounded: true,
     moving: 0,
+    footTimer: 0,
     bob: 0,
     recoil: 0,
     spreadKick: 0,
@@ -2537,7 +2581,7 @@ function networkNewRound() {
 export const networkEngine = {
   start(roster, options = {}) {
     multiplayerServer = true;
-    networkFeed = [];
+    (networkFeed = []), (networkSounds = []);
     mode = MODES[options.mode] || MODES.quick;
     selectedMode = mode.id;
     round = 0;
@@ -2690,6 +2734,13 @@ export const networkEngine = {
         name: a.name,
         agent: a.agent.id,
         team: a.team,
+        weapon: a.netData
+          ? a.netData.slot === 1
+            ? a.netData.primary?.id
+            : a.netData.slot === 3
+              ? 'knife'
+              : a.netData.pistol.id
+          : a.weaponId,
         human: !!a.netData,
         alive: a.alive,
         hp: a.hp,
@@ -2704,9 +2755,11 @@ export const networkEngine = {
         reveal: a.reveal,
         muzzle: a.muzzleTime > 0,
         connected: a.connected !== false,
+        impact: a.lastImpact && worldTime - a.lastImpact.at < 1.2 ? a.lastImpact : null,
       })),
       own: h ? JSON.parse(JSON.stringify({ ...h, kills: own.kills, deaths: own.deaths })) : null,
       feed: networkFeed,
+      audio: networkSounds.filter((event) => worldTime - event.at < 0.35),
       spike: {
         planted: spike.planted,
         carrier: spike.carrier?.id || null,
@@ -2731,7 +2784,8 @@ let lastOnlineState = '',
   lastOnlineRound = -1,
   onlineEffects = new Map(),
   seenShots = new Set(),
-  lastFeedId = 0;
+  lastFeedId = 0,
+  lastSoundId = 0;
 function receiveOnline(snapshot, id) {
   networkViewTeam = snapshot.actors.find((a) => a.id === id)?.team ?? 0;
   if (!onlineGame) {
@@ -2750,11 +2804,12 @@ function receiveOnline(snapshot, id) {
     lastOnlineRound = -1;
     onlineEffects = new Map();
     seenShots = new Set();
-    lastFeedId = 0;
+    (lastFeedId = 0), (lastSoundId = 0);
     capture();
   }
   mode = MODES[snapshot.mode];
   const roundChanged = round !== snapshot.round || lastOnlineRound < 0;
+  if (roundChanged) combatFX.reset();
   round = snapshot.round;
   score = snapshot.score;
   attackTeam = snapshot.attackTeam;
@@ -2772,6 +2827,8 @@ function receiveOnline(snapshot, id) {
       a.id = data.id;
       actors.push(a);
     }
+    const wasAlive = a.alive,
+      wasReceived = a.received;
     Object.assign(a, {
       name: data.name,
       team: data.team,
@@ -2785,6 +2842,7 @@ function receiveOnline(snapshot, id) {
       reveal: data.reveal,
     });
     a.targetPos = { ...data.pos };
+    a.netWeapon = data.weapon;
     a.netFeet = data.feet;
     a.netMoving = data.moving;
     a.isPlayer = data.id === id;
@@ -2792,7 +2850,19 @@ function receiveOnline(snapshot, id) {
       a.pos = { ...data.pos };
       a.received = true;
     }
-    a.model.group.visible = !a.isPlayer && a.alive;
+    a.model.group.visible = !a.isPlayer;
+    if (roundChanged || wasAlive !== a.alive) a.model.setAlive?.(a.alive);
+    if (!a.model.imported) a.model.group.rotation.z = a.alive ? 0 : Math.PI / 2;
+    if (!roundChanged && data.impact && data.impact.seq !== (a.lastImpactSeq || 0)) {
+      a.lastImpactSeq = data.impact.seq;
+      combatFX.impact(a, data.impact);
+      if (a.isPlayer) combatFX.hurt(a.pos, data.impact.from, data.impact.amount);
+    }
+    if (!roundChanged && wasReceived && wasAlive && !a.alive) {
+      combatFX.eliminate(a);
+      if (a.isPlayer)
+        combatFX.die({ ...a.pos, y: data.feet }, yaw, data.impact?.attacker || 'AMBIENTE');
+    }
     a.model.muzzle.visible = data.muzzle;
     if (a.isPlayer) player = a;
   }
@@ -2816,7 +2886,6 @@ function receiveOnline(snapshot, id) {
   agents = player.agent;
   if (previousWeapon !== weapon().id || roundChanged) buildGun();
   if (weapon().ammo < oldAmmo && !roundChanged) {
-    sound('shot', 0.6);
     recoil = 0.06;
     gunFlash.visible = true;
   }
@@ -2887,9 +2956,20 @@ function receiveOnline(snapshot, id) {
         killConfirmTime = 1.5;
         $('kill-confirm-text').textContent = event.head ? 'TIRO NA CABEÇA' : 'ELIMINAÇÃO';
         show('kill-confirm');
-        sound('kill');
       }
       lastFeedId = event.id;
+    }
+  for (const event of snapshot.audio || [])
+    if (event.id > lastSoundId) {
+      lastSoundId = event.id;
+      if (event.to && event.to !== id) continue;
+      const type =
+        event.type === 'round'
+          ? Number(event.variant) === player.team
+            ? 'roundWin'
+            : 'roundLoss'
+          : event.type;
+      sound(type, event.volume, event.position, event.variant);
     }
   state = snapshot.state;
   if (state !== lastOnlineState) world.setBuyPhase(state === 'buy');
@@ -2923,8 +3003,10 @@ function updateOnlineView(dt) {
     a.model.group.position.set(a.pos.x, a.netFeet || 0, a.pos.z);
     a.model.group.rotation.y = a.heading;
     a.walking += dt * (a.netMoving || 0) * 2;
-    a.model.animate(a.netMoving > 0, a.walking);
-    a.model.badge.visible = a.team === player.team || a.reveal > 0 || visible(player, a);
+    a.model.setWeapon?.(a.netWeapon || 'pulse');
+    if (a.alive) a.model.animate(a.netMoving > 0, a.walking, false, dt);
+    a.model.badge.visible =
+      a.alive && (a.team === player.team || a.reveal > 0 || visible(player, a));
   }
   if (player.alive) {
     camera.position.set(player.pos.x, feet + (keys.has('ControlLeft') ? 1.12 : 1.7), player.pos.z);

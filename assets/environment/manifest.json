@@ -1,0 +1,58 @@
+[
+  {
+    "file": "Container_Long.glb",
+    "bytes": 60396,
+    "source": "https://drive.google.com/file/d/10fh-JeIdf_Wwd0gJb72TnGULdD9lcsl3/view",
+    "sha256": "7c3cc2fe6fee4ec14b47db78e5fe7f009efded9ace0a729b30da86103982e2e2",
+    "license": "CC0-1.0",
+    "collection": "https://quaternius.com/packs/toonshootergamekit.html"
+  },
+  {
+    "file": "Container_Small.glb",
+    "bytes": 41436,
+    "source": "https://drive.google.com/file/d/1y0pB6G2lehCu8TuhtCxrbUzn7w7zv_Ci/view",
+    "sha256": "9301f223aa7b20d15ffff7a86b184cdd12b43c36eef03d0e54c8b97833883a11",
+    "license": "CC0-1.0",
+    "collection": "https://quaternius.com/packs/toonshootergamekit.html"
+  },
+  {
+    "file": "Crate.glb",
+    "bytes": 12040,
+    "source": "https://drive.google.com/file/d/1CARthb8FHddjbfEPG44jbImahtkFfydK/view",
+    "sha256": "c7a8a9363a1cda9227684a66c468b746dd6e99eb35ad6117fd7c35c664bed3c5",
+    "license": "CC0-1.0",
+    "collection": "https://quaternius.com/packs/toonshootergamekit.html"
+  },
+  {
+    "file": "GasTank.glb",
+    "bytes": 32048,
+    "source": "https://drive.google.com/file/d/1yhDDwUIr6u-GjOXW53QCTCagatyBQFzX/view",
+    "sha256": "75aff62797db6bad119b33bec370f66d38814c820d140141a77278fbe6522025",
+    "license": "CC0-1.0",
+    "collection": "https://quaternius.com/packs/toonshootergamekit.html"
+  },
+  {
+    "file": "Pallet.glb",
+    "bytes": 9640,
+    "source": "https://drive.google.com/file/d/1PPhFhv7wnY32X6bIAr70aQ26LtfyARZ9/view",
+    "sha256": "2450fbee47a4a7a4d9feaf16c301e124baf520d0f161e25eafcfa35ad54381c1",
+    "license": "CC0-1.0",
+    "collection": "https://quaternius.com/packs/toonshootergamekit.html"
+  },
+  {
+    "file": "StreetLight.glb",
+    "bytes": 10076,
+    "source": "https://drive.google.com/file/d/1Qly9jwFsg_FtUGCC3FQqH77-JjsvZqYL/view",
+    "sha256": "0f07358572b0ec781c89b3066cb54a2002cf988703f2ff2617c8ed3c33c8c382",
+    "license": "CC0-1.0",
+    "collection": "https://quaternius.com/packs/toonshootergamekit.html"
+  },
+  {
+    "file": "Tree_1.glb",
+    "bytes": 47296,
+    "source": "https://drive.google.com/file/d/10sSrs-glet7ueZf-uHUTZ4k3YVYRDKDn/view",
+    "sha256": "993d7f7e5f4c42179ea8e52d590b3f9782b3b4459847735912119bfe05df8fcc",
+    "license": "CC0-1.0",
+    "collection": "https://quaternius.com/packs/toonshootergamekit.html"
+  }
+]

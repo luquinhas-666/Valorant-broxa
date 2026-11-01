@@ -1,6 +1,6 @@
 {
   "name": "rupture-web-fps",
-  "version": "0.5.0",
+  "version": "0.8.0",
   "private": true,
   "type": "module",
   "description": "FPS tático com agentes, bots e salas privadas online",
@@ -9,7 +9,10 @@
     "multiplayer": "node --experimental-vm-modules server/server.mjs",
     "test:online": "node --experimental-vm-modules tests/online.test.mjs",
     "test": "node --experimental-vm-modules tests/game.test.mjs",
-    "test:map": "node --experimental-vm-modules tests/map.test.mjs"
+    "test:map": "node --experimental-vm-modules tests/map.test.mjs",
+    "test:models": "node tests/models.test.mjs",
+    "test:polish": "node tests/polish.test.mjs",
+    "test:combat": "node tests/combat.test.mjs"
   },
   "engines": {
     "node": ">=22 <25"

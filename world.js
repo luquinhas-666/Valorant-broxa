@@ -1,16 +1,17 @@
 import * as T from './vendor/three.module.js';
 import { upgradeLighting, batchStatics } from './art.js';
 import { LOOKS } from './data.js';
+import { createImportedSoldier } from './models.js';
 
 import { buildArena } from './arena.js';
-import { MAP, SITES, SPAWNS, CALLOUTS } from './map-layout.js';
+import { MAP, SITES, SPAWNS, CALLOUTS, MAP_SCALE, fromMapPoint } from './map-layout.js';
 export { MAP, SITES, SPAWNS, CALLOUTS };
 export const BLOCKS = [];
 export function createWorld(renderer) {
   BLOCKS.length = 0;
   const scene = new T.Scene();
   scene.background = new T.Color('#b7d8dc');
-  scene.fog = new T.Fog('#bed7d6', 35, 115);
+  scene.fog = new T.Fog('#bed7d6', 45, 145);
   const obstacles = [],
     props = new T.Group();
   scene.add(props);
@@ -70,7 +71,7 @@ export function createWorld(renderer) {
     return t;
   }
   const floor = new T.Mesh(
-    new T.PlaneGeometry(110, 110),
+    new T.PlaneGeometry(140, 140),
     new T.MeshStandardMaterial({ map: texture('#c4b69a', 'floor'), roughness: 1 }),
   );
   floor.rotation.x = -Math.PI / 2;
@@ -81,10 +82,10 @@ export function createWorld(renderer) {
   sun.position.set(-38, 55, 28);
   sun.castShadow = true;
   sun.shadow.mapSize.set(2048, 2048);
-  sun.shadow.camera.left = -62;
-  sun.shadow.camera.right = 62;
-  sun.shadow.camera.top = 64;
-  sun.shadow.camera.bottom = -64;
+  sun.shadow.camera.left = -78;
+  sun.shadow.camera.right = 78;
+  sun.shadow.camera.top = 80;
+  sun.shadow.camera.bottom = -80;
   sun.shadow.camera.near = 1;
   sun.shadow.camera.far = 160;
   sun.shadow.bias = -0.0004;
@@ -120,6 +121,8 @@ export function createWorld(renderer) {
     return m;
   }
   buildArena({ props, box, cylinder, label, mat, floorTexture: floor.material.map });
+  props.scale.set(MAP_SCALE, 1, MAP_SCALE);
+  for (const b of BLOCKS) for (const key of ['x', 'z', 'w', 'd']) b[key] *= MAP_SCALE;
   batchStatics(props);
   function blocked(x, z, r = 0.4, feet = 0) {
     return BLOCKS.some(
@@ -293,8 +296,11 @@ export function createWorld(renderer) {
       if (Math.hypot(p.x - site.x, p.z - site.z) < site.r + 2) return 'PONTO ' + site.name;
     if (p.z > MAP.attackBarrier) return 'BASE ATACANTE';
     if (p.z < MAP.defenseBarrier) return 'BASE DEFENSORA / ROTAÇÃO';
+    p = fromMapPoint(p);
     if (p.x < -35) return 'JARDIM LONGO';
     if (p.x > 35) return 'CANAL LONGO';
+    if (p.x > -20 && p.x < -8 && p.z > 8 && p.z < 16) return 'PASSAGEM DA PRAÇA A';
+    if (p.x > 12 && p.x < 24 && p.z > 8 && p.z < 16) return 'PASSAGEM DA PRAÇA B';
     if (p.x < -24 && p.z > 10 && p.z < 18) return 'TÚNEL DAS FLORES';
     if (p.x < -19 && p.z > 5) return 'GALERIAS / TÚNEL DAS FLORES';
     if (p.x > 21 && p.z > 5) return 'ARMAZÉM';
@@ -328,6 +334,8 @@ export function createWorld(renderer) {
 }
 
 export function createSoldier(color, enemy = false, identity = 'vex') {
+  const imported = createImportedSoldier(color, enemy, identity);
+  if (imported) return imported;
   const look = LOOKS[identity] || LOOKS.vex;
   const group = new T.Group(),
     targets = [],

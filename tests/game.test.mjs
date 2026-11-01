@@ -1,4 +1,4 @@
-import { MAP, SPAWNS, SITES } from '../map-layout.js';
+import { toMapPoint, MAP, SPAWNS, SITES } from '../map-layout.js';
 import fs from 'node:fs/promises';
 import vm from 'node:vm';
 import assert from 'node:assert/strict';
@@ -117,10 +117,10 @@ async function load(file) {
   }
   const m = new vm.SourceTextModule(src, { context: ctx, identifier: file });
   cache.set(file, m);
-  await m.link((spec) => load(path.resolve(path.dirname(file), spec)));
   return m;
 }
 const game = await load(path.join(root, 'game.js'));
+await game.link((spec, parent) => load(path.resolve(path.dirname(parent.identifier), spec)));
 await game.evaluate();
 const g = game.namespace.test;
 let count = 0;
@@ -180,7 +180,7 @@ const carrier = g.snapshot().spike.carrier;
 carrier.pos = { ...SITES[1] };
 carrier.plant = 0;
 for (const a of g.actors().filter((a) => a.team === 0)) {
-  a.pos = { x: 0, z: 28 };
+  a.pos = toMapPoint({ x: 0, z: 28 });
   a.blind = 20;
 } // Uncontested plant through the real simulation.
 for (const a of g.actors()) if (a !== carrier && !a.isPlayer) a.blind = 20;
@@ -243,34 +243,34 @@ check('Rotas entre bases e pontos são navegáveis', () => {
     for (const end of [{ ...SITES[0] }, { ...SITES[1] }])
       assert.ok(g.world.path(start, end).length > 0);
 });
-check('Colisão impede atravessar fachadas', () => assert.equal(g.world.blocked(-16, 16), true));
+check('Colisão impede atravessar fachadas', () => assert.equal(g.world.blocked(-20, 20), true));
 check('Galerias, armazém e lateral da torre são atravessáveis', () => {
   for (const p of [
-    { x: -24, z: 20 },
-    { x: 28, z: 16 },
-    { x: 9, z: -14 },
+    toMapPoint({ x: -24, z: 20 }),
+    toMapPoint({ x: 28, z: 16 }),
+    toMapPoint({ x: 9, z: -14 }),
   ])
     assert.equal(g.world.blocked(p.x, p.z), false);
 });
 check('Passagens internas ligam portas opostas', () => {
   for (const x of [-24, 28]) {
-    const route = g.world.path({ x, z: 25 }, { x, z: 6 });
+    const route = g.world.path(toMapPoint({ x, z: 25 }), toMapPoint({ x, z: 6 }));
     assert.ok(route.length > 0);
-    assert.ok(route.some((p) => Math.abs(p.x - x) < 3 && p.z > 2 && p.z < 12));
+    assert.ok(route.some((p) => Math.abs(p.x - x * 1.25) < 3.75 && p.z > 2.5 && p.z < 15));
   }
 });
 check('Jardim e canal possuem rotas até os dois pontos', () => {
   for (const x of [-40, 40])
     for (const end of [{ ...SITES[0] }, { ...SITES[1] }])
-      assert.ok(g.world.path({ x, z: 24 }, end).length > 0);
+      assert.ok(g.world.path(toMapPoint({ x, z: 24 }), end).length > 0);
 });
 check('Cenário estático usa lotes para reduzir chamadas de desenho', () => {
   assert.ok(g.world.props.children.length < 250);
   assert.ok(g.world.scene.environment);
 });
 const data = (await load(path.join(root, 'data.js'))).namespace;
-check('Loja oferece 17 armas de fogo e uma faca', () =>
-  assert.equal(Object.keys(data.WEAPONS).length, 18),
+check('Loja oferece 12 armas de fogo e uma faca', () =>
+  assert.equal(Object.keys(data.WEAPONS).length, 13),
 );
 g.startMatch();
 g.openShop();
@@ -411,7 +411,7 @@ g.updateObjective(1.6);
 check('Portador pode recuperar a spike do chão', () =>
   assert.equal(g.snapshot().spike.carrier, g.player()),
 );
-g.setPlayer({ x: 0, z: 20 });
+g.setPlayer(toMapPoint({ x: 0, z: 20 }));
 g.plant(g.player());
 check('Spike não pode ser plantada fora dos pontos', () =>
   assert.equal(g.snapshot().spike.planted, false),
@@ -478,9 +478,9 @@ check('Plano Z altera o objetivo tático dos aliados', () => {
   assert.equal(g.snapshot().attackPlan, 'B');
   assert.ok(g.chooseGoal(g.actors()[1]).x > 0);
 });
-check('Cada bomb possui quatro planos de entrada navegáveis', () => {
+check('Cada bomb possui cinco planos de entrada navegáveis', () => {
   for (const key of ['A', 'B']) {
-    assert.equal(rules.ROUTES[key].length, 4);
+    assert.equal(rules.ROUTES[key].length, 5);
     for (const route of rules.ROUTES[key]) {
       let previous = { ...SPAWNS.attack };
       for (const point of route.points) {
@@ -546,7 +546,7 @@ check('Partida competitiva completa termina com 13+ vitórias e dois de vantagem
 g.setChosen(7);
 g.startMatch();
 g.beginRound();
-g.setPlayer({ x: -12, z: 42 });
+g.setPlayer(toMapPoint({ x: -12, z: 42 }));
 g.skill(1);
 for (let i = 0; i < 30; i++) g.updatePlayer(0.05);
 check('Salto tático aterrissa sobre a cobertura e permite pular novamente', () => {
@@ -558,7 +558,7 @@ check('Salto tático aterrissa sobre a cobertura e permite pular novamente', () 
 });
 g.newRound();
 g.beginRound();
-g.setPlayer({ x: -32, z: 14 });
+g.setPlayer(toMapPoint({ x: -32, z: 14 }));
 g.skill(1);
 let maximumFeet = 0;
 for (let i = 0; i < 25; i++) {
@@ -568,4 +568,16 @@ for (let i = 0; i < 25; i++) {
 check('Teto do túnel impede saltos de atravessar a cobertura', () =>
   assert.ok(maximumFeet <= 2.11),
 );
+g.startMatch();
+g.beginRound();
+for (const a of g.actors()) a.blind = 100;
+const killer = g.actors().find((a) => a.team !== g.player().team);
+g.damage(g.player(), 300, killer);
+g.tick(0.5);
+g.tick(0.5);
+g.tick(0.05);
+check('Câmera de espectador oculta o corpo do aliado acompanhado', () => {
+  const ally = g.actors().find((a) => a.alive && a.team === g.player().team);
+  assert.equal(ally.model.group.visible, false);
+});
 console.log(`${count} verificações concluídas.`);

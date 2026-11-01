@@ -1,0 +1,74 @@
+[
+  {
+    "file": "PavingStones036_512-JPG_Color.jpg",
+    "bytes": 77474,
+    "source": "https://ambientcg.com/view?id=PavingStones036",
+    "license": "CC0-1.0",
+    "sha256": "c738d9ef5b052be028f6f22a0e20edc532a9358b645e5d207adaa7aef76bd1ef",
+    "conversion": "Resampled to 512px, JPEG quality 88"
+  },
+  {
+    "file": "PavingStones036_512-JPG_NormalGL.jpg",
+    "bytes": 76687,
+    "source": "https://ambientcg.com/view?id=PavingStones036",
+    "license": "CC0-1.0",
+    "sha256": "1149e544d0090f9fc54e65121b715c5ec05dc506985c9a23ea4c867dc2b601e1",
+    "conversion": "Resampled to 512px, JPEG quality 88"
+  },
+  {
+    "file": "PavingStones036_512-JPG_Roughness.jpg",
+    "bytes": 65348,
+    "source": "https://ambientcg.com/view?id=PavingStones036",
+    "license": "CC0-1.0",
+    "sha256": "b29d774c93bf732599748d0b518fec7f8a5567612f55b88ed014b775f869b61b",
+    "conversion": "Resampled to 512px, JPEG quality 88"
+  },
+  {
+    "file": "Plaster001_512-JPG_Color.jpg",
+    "bytes": 30253,
+    "source": "https://ambientcg.com/view?id=Plaster001",
+    "license": "CC0-1.0",
+    "sha256": "8162e1d7d1c9c03d673370ec3d73bb68cfeab2e7f5d5e0c9265e1d9e0b580c02",
+    "conversion": "Resampled to 512px, JPEG quality 88"
+  },
+  {
+    "file": "Plaster001_512-JPG_NormalGL.jpg",
+    "bytes": 57922,
+    "source": "https://ambientcg.com/view?id=Plaster001",
+    "license": "CC0-1.0",
+    "sha256": "296321c48a5ba2624dc1cd995e555980472568202619b3f5ded733458c0fa882",
+    "conversion": "Resampled to 512px, JPEG quality 88"
+  },
+  {
+    "file": "Plaster001_512-JPG_Roughness.jpg",
+    "bytes": 28670,
+    "source": "https://ambientcg.com/view?id=Plaster001",
+    "license": "CC0-1.0",
+    "sha256": "fd65aa62e0566844f3c1550e970ae1b3bdbe363b2a5e379fcb77600054386103",
+    "conversion": "Resampled to 512px, JPEG quality 88"
+  },
+  {
+    "file": "Concrete034_512-JPG_Color.jpg",
+    "bytes": 35111,
+    "source": "https://ambientcg.com/view?id=Concrete034",
+    "license": "CC0-1.0",
+    "sha256": "b179e749aaf18feb2b6692e289324b84097637558169a602d8bdfda1272e7bf2",
+    "conversion": "Resampled to 512px, JPEG quality 88"
+  },
+  {
+    "file": "Concrete034_512-JPG_NormalGL.jpg",
+    "bytes": 51250,
+    "source": "https://ambientcg.com/view?id=Concrete034",
+    "license": "CC0-1.0",
+    "sha256": "850fbed68de065a255f60b125d5b3310d957bce590c209f43b52a8850ef21d8d",
+    "conversion": "Resampled to 512px, JPEG quality 88"
+  },
+  {
+    "file": "Concrete034_512-JPG_Roughness.jpg",
+    "bytes": 34415,
+    "source": "https://ambientcg.com/view?id=Concrete034",
+    "license": "CC0-1.0",
+    "sha256": "ad3fa16ae7fc9f4e3b89acaa103dd5240f4622c0e715cd3d2e339acec7a4ba75",
+    "conversion": "Resampled to 512px, JPEG quality 88"
+  }
+]

@@ -1,5 +1,9 @@
+import { textureBox, environmentModel } from './environment.js';
 import * as T from './vendor/three.module.js';
-import { MAP, AREAS, SITES, CALLOUTS, playable } from './map-layout.js';
+import { LAYOUT } from './map-layout.js';
+const { MAP, AREAS, SITES, CALLOUTS } = LAYOUT;
+const playable = (x, z) =>
+  AREAS.some((a) => Math.abs(x - a.x) <= a.w / 2 && Math.abs(z - a.z) <= a.d / 2);
 
 export function buildArena({ props, box, cylinder, label, mat, floorTexture }) {
   // Greedy rectangles turn the non-playable cells into solid, efficient building blocks.
@@ -26,7 +30,11 @@ export function buildArena({ props, box, cylinder, label, mat, floorTexture }) {
         cz = -n + z * cell + d,
         height = 7 + ((x * 3 + z) % 4) * 0.8;
       const color = cx > 16 ? '#a4b6b2' : cx < -16 ? '#d5b79a' : '#ce9c80';
-      box(cx, height / 2, cz, w * cell, height, d * cell, color, true);
+      textureBox(
+        box(cx, height / 2, cz, w * cell, height, d * cell, color, true),
+        'plaster',
+        color,
+      );
       box(cx, height + 0.12, cz, w * cell + 0.16, 0.24, d * cell + 0.16, '#e4d3b7');
       box(cx, 0.32, cz, w * cell + 0.08, 0.64, d * cell + 0.08, '#9f9c8c');
       // Recessed windows appear only on faces adjoining playable cells.
@@ -57,11 +65,22 @@ export function buildArena({ props, box, cylinder, label, mat, floorTexture }) {
       a.d,
       new T.MeshStandardMaterial({ map, color: a.color, roughness: 1 }),
     );
+    textureBox(floor, a.x > 18 ? 'concrete' : 'paving', a.color);
     floor.receiveShadow = true;
     floor.castShadow = false;
   }
   function cover(x, z, w, d, h, color = '#768c85') {
-    box(x, h / 2, z, w, h, d, color, true);
+    const asset = environmentModel(
+      w > 5 ? 'Container_Long' : h > 2.2 ? 'Container_Small' : 'Crate',
+      { x, z, w, d, h },
+    );
+    const collider = box(x, h / 2, z, w, h, d, color, true);
+    if (asset) {
+      collider.visible = false;
+      props.add(asset);
+      return;
+    }
+    textureBox(collider, 'concrete', color);
     box(x, h + 0.035, z, w + 0.08, 0.07, d + 0.08, '#344e4d');
     for (const side of [-1, 1]) {
       box(x + side * (w / 2 - 0.13), h / 2, z + d / 2 + 0.035, 0.14, h - 0.15, 0.07, '#c3c9aa');
@@ -78,6 +97,10 @@ export function buildArena({ props, box, cylinder, label, mat, floorTexture }) {
     for (const dx of [-w / 2 + 0.3, w / 2 - 0.3]) box(x + dx, 3.65, z, 0.16, 0.3, d, '#665c50');
   }
   // Sheltered A connector and warehouse create different acoustic/visual identities.
+  const steel = new T.MeshStandardMaterial({ color: '#657d82', metalness: 0.65, roughness: 0.55 });
+  box(28, 0.027, 14.5, 12, 0.02, 19, steel);
+  for (let z = 6; z < 24; z += 3) box(28, 0.041, z, 12, 0.01, 0.045, '#a5b2a5');
+  for (const x of [22.1, 33.9]) box(x, 0.042, 14.5, 0.12, 0.012, 19, '#d9bc77');
   roof(-32, 14, 16, 7.4);
   roof(-24, 20, 7.4, 10);
   roof(28, 16, 11.4, 12);
@@ -94,6 +117,10 @@ export function buildArena({ props, box, cylinder, label, mat, floorTexture }) {
   cover(42, 13, 2.2, 4, 1.25, '#6b8b8c');
   cover(25, 13, 2.5, 3.5, 2.35, '#6b8188');
   cover(35, 2, 2.4, 2.4, 1.25, '#9aab9c');
+  // Split pushes must clear the near-side screen before entering the next lane.
+  cover(-17, 10.5, 2, 3, 2.2, '#a4ad92');
+  cover(18, 9, 2, 2.5, 2.2, '#7f9c9e');
+  cover(0, -34, 6, 2, 2.2, '#899a99');
   // Mid has two peeking lanes around a kiosk and a solid tower preventing spawn snipes.
   cover(0, 19, 3.8, 3.8, 2.7, '#a47b61');
   box(0, 3, 19, 4.5, 0.2, 4.5, '#aa6960');
@@ -103,6 +130,9 @@ export function buildArena({ props, box, cylinder, label, mat, floorTexture }) {
   cylinder(0, 1.9, 3, 0.5, 0.7, 1.2, '#b8ae95', 12);
   cover(-9, 9, 2.2, 2.2, 1.15, '#8c9b85');
   cover(9, -3, 2.1, 2.1, 2.2, '#8d9e95');
+  // Staggered cover breaks the enlarged approach into separate peeks.
+  cover(-27, 1, 2, 3, 2.1);
+  cover(29, -1, 2, 3, 2.1);
   // Each site has a default plant, a deeper pocket and a crossfire-breaking main crate.
   cover(-34, -15, 3.4, 4.8, 2.8, '#547d6b');
   cover(-24, -22, 3, 3, 1.2, '#9fac91');
@@ -183,6 +213,39 @@ export function buildArena({ props, box, cylinder, label, mat, floorTexture }) {
     // Small floor arrows remain readable without blocking silhouettes.
     box(c.x, 0.029, c.z - 1.5, 1.7, 0.025, 0.15, '#ded3af');
   }
+  for (const [x, z] of [
+    [-18, 22],
+    [18, 24],
+    [-45, -22],
+    [45, -24],
+    [-16, -28],
+    [16, -28],
+  ]) {
+    const tree = environmentModel('Tree_1', { x, z, y: 5, w: 4, d: 4, h: 7 });
+    if (tree) props.add(tree);
+  }
+  for (const [x, z] of [
+    [-11, 10],
+    [11, 10],
+    [-39, 26],
+    [39, 26],
+  ]) {
+    const lamp = environmentModel('StreetLight', { x, z, w: 1, d: 0.8, h: 5.5 });
+    if (lamp) props.add(lamp);
+    const pole = box(x, 2.5, z, 0.4, 5, 0.4, '#4b6567', true);
+    if (lamp) pole.visible = false;
+  }
+  for (const [x, z] of [
+    [-40, -26.5],
+    [40, -25],
+  ]) {
+    const gas = environmentModel('GasTank', { x, z, w: 1, d: 1, h: 1.8 });
+    if (gas) props.add(gas);
+    const block = box(x, 0.9, z, 1, 1.8, 1, '#758783', true);
+    if (gas) block.visible = false;
+  }
+  const dock = environmentModel('Pallet', { x: 25, z: 13, w: 2.7, d: 3.7, h: 0.18 });
+  if (dock) props.add(dock);
   for (let i = 0; i < 26; i++) {
     const angle = (i * Math.PI * 2) / 26,
       radius = 70 + (i % 3) * 5,

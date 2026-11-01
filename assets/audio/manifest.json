@@ -1,0 +1,227 @@
+[
+  {
+    "file": "shot-pistol.wav",
+    "seconds": 0.22,
+    "sampleRate": 24000,
+    "bytes": 10604,
+    "sha256": "b27ac13068ce8e2fb17b1613227b3759a1bb970514f261e1ad9d1283c82965b2",
+    "author": "RUPTURE project",
+    "source": "Original layered procedural synthesis"
+  },
+  {
+    "file": "shot-rifle.wav",
+    "seconds": 0.3,
+    "sampleRate": 24000,
+    "bytes": 14444,
+    "sha256": "687bad0a7858b097975ef3f0a60b6b4e089edaf092a40907f211a1e7b222119c",
+    "author": "RUPTURE project",
+    "source": "Original layered procedural synthesis"
+  },
+  {
+    "file": "shot-smg.wav",
+    "seconds": 0.18,
+    "sampleRate": 24000,
+    "bytes": 8684,
+    "sha256": "f8afe6ef47c5b02b3047ba141f2c51b1bfeaaf3f8dbb69a874c432023e41af1e",
+    "author": "RUPTURE project",
+    "source": "Original layered procedural synthesis"
+  },
+  {
+    "file": "shot-shotgun.wav",
+    "seconds": 0.5,
+    "sampleRate": 24000,
+    "bytes": 24044,
+    "sha256": "96a0e139bfcfc2fb0b999b261fa6de6f8359ce8e016afa9955c4d2e3109e01e0",
+    "author": "RUPTURE project",
+    "source": "Original layered procedural synthesis"
+  },
+  {
+    "file": "shot-sniper.wav",
+    "seconds": 0.8,
+    "sampleRate": 24000,
+    "bytes": 38444,
+    "sha256": "64f3b72e0810f3619da1ff35981388b6ccc445869595a87743dc79f9de4aad5e",
+    "author": "RUPTURE project",
+    "source": "Original layered procedural synthesis"
+  },
+  {
+    "file": "shot-heavy.wav",
+    "seconds": 0.4,
+    "sampleRate": 24000,
+    "bytes": 19244,
+    "sha256": "80a5acc03656a4a6aa5f347a85d92169d828ef63c0163c39e406b1a5278f48d3",
+    "author": "RUPTURE project",
+    "source": "Original layered procedural synthesis"
+  },
+  {
+    "file": "step-stone.wav",
+    "seconds": 0.2,
+    "sampleRate": 24000,
+    "bytes": 9644,
+    "sha256": "dcb230f8fbc597cfe87517e4a0b9c2e13f4d9ce85a945bf4a6baeed69fceceb6",
+    "author": "RUPTURE project",
+    "source": "Original layered procedural synthesis"
+  },
+  {
+    "file": "step-metal.wav",
+    "seconds": 0.2,
+    "sampleRate": 24000,
+    "bytes": 9644,
+    "sha256": "27b109856121b9e5be5ef4a3822d4b78cf9e292dbbd10086235e31a84f855f1e",
+    "author": "RUPTURE project",
+    "source": "Original layered procedural synthesis"
+  },
+  {
+    "file": "step-grass.wav",
+    "seconds": 0.2,
+    "sampleRate": 24000,
+    "bytes": 9644,
+    "sha256": "ed9070870574e2b7144af20d8331143e4ca2426a36e2e1e0df3f167aeec4b79a",
+    "author": "RUPTURE project",
+    "source": "Original layered procedural synthesis"
+  },
+  {
+    "file": "impact.wav",
+    "seconds": 0.14,
+    "sampleRate": 24000,
+    "bytes": 6764,
+    "sha256": "7db2f5a45f2b9970754e3ebbb9edb0af74d170ff7a1d00a4773330d9ef1872a5",
+    "author": "RUPTURE project",
+    "source": "Original layered procedural synthesis"
+  },
+  {
+    "file": "hit.wav",
+    "seconds": 0.14,
+    "sampleRate": 24000,
+    "bytes": 6764,
+    "sha256": "a57d3b534f45944c0b70b6c344813bf7b5995134aeb79890fc4ead20b000ce85",
+    "author": "RUPTURE project",
+    "source": "Original layered procedural synthesis"
+  },
+  {
+    "file": "hurt.wav",
+    "seconds": 0.14,
+    "sampleRate": 24000,
+    "bytes": 6764,
+    "sha256": "9ba54e747669335804b0dbd80b008ccb6c7137aeeefa3df0e31ccea1a27eec92",
+    "author": "RUPTURE project",
+    "source": "Original layered procedural synthesis"
+  },
+  {
+    "file": "reload.wav",
+    "seconds": 0.7,
+    "sampleRate": 24000,
+    "bytes": 33644,
+    "sha256": "393abb2ca335ce62dca6aa8b8bebc01263e5531053256cbba46c02b51d5bb458",
+    "author": "RUPTURE project",
+    "source": "Original layered procedural synthesis"
+  },
+  {
+    "file": "explosion.wav",
+    "seconds": 1.5,
+    "sampleRate": 24000,
+    "bytes": 72044,
+    "sha256": "1c669a7cac6c3abf377065c95202a096077b3e91d2dbcd8e81eea3c919166ae9",
+    "author": "RUPTURE project",
+    "source": "Original layered procedural synthesis"
+  },
+  {
+    "file": "skill.wav",
+    "seconds": 0.55,
+    "sampleRate": 24000,
+    "bytes": 26444,
+    "sha256": "3766bade759b2a0b7b63062c92582bfe71e364e787fb32cdabecdb5ecc310db2",
+    "author": "RUPTURE project",
+    "source": "Original layered procedural synthesis"
+  },
+  {
+    "file": "knife.wav",
+    "seconds": 0.24,
+    "sampleRate": 24000,
+    "bytes": 11564,
+    "sha256": "8e51e52d335966174e480449383842ea83af7d257da4a91ddfbd744842d593d1",
+    "author": "RUPTURE project",
+    "source": "Original layered procedural synthesis"
+  },
+  {
+    "file": "beep.wav",
+    "seconds": 0.08,
+    "sampleRate": 24000,
+    "bytes": 3884,
+    "sha256": "323969f4c155dde80286e48a885474e5ae1e88a48f1b20fc4b4287966d79a210",
+    "author": "RUPTURE project",
+    "source": "Original layered procedural synthesis"
+  },
+  {
+    "file": "buy.wav",
+    "seconds": 0.18,
+    "sampleRate": 24000,
+    "bytes": 8684,
+    "sha256": "78a61fb269945840ddb4aeae291bccf1611e7532106e30cea2965fceb3f546d2",
+    "author": "RUPTURE project",
+    "source": "Original layered procedural synthesis"
+  },
+  {
+    "file": "kill.wav",
+    "seconds": 0.23,
+    "sampleRate": 24000,
+    "bytes": 11084,
+    "sha256": "724c279eb4be723e6af1e7235b5b5628106d2612f21ceac75b3d997133f4cf22",
+    "author": "RUPTURE project",
+    "source": "Original layered procedural synthesis"
+  },
+  {
+    "file": "plant.wav",
+    "seconds": 0.55,
+    "sampleRate": 24000,
+    "bytes": 26444,
+    "sha256": "a5168bdce8b179a06bcc68b22e109b858abb6ee5a535c0335d9a23208bd5468c",
+    "author": "RUPTURE project",
+    "source": "Original layered procedural synthesis"
+  },
+  {
+    "file": "defuse.wav",
+    "seconds": 0.6,
+    "sampleRate": 24000,
+    "bytes": 28844,
+    "sha256": "53d7a25858c317b2972bb1399b87accc3633debd4e654ce8961ae31173a8cef4",
+    "author": "RUPTURE project",
+    "source": "Original layered procedural synthesis"
+  },
+  {
+    "file": "checkpoint.wav",
+    "seconds": 0.18,
+    "sampleRate": 24000,
+    "bytes": 8684,
+    "sha256": "94ae71666dde1473be86c85eefb443d694a1f0e195c57bf559b24461fac6ecaa",
+    "author": "RUPTURE project",
+    "source": "Original layered procedural synthesis"
+  },
+  {
+    "file": "start.wav",
+    "seconds": 0.35,
+    "sampleRate": 24000,
+    "bytes": 16844,
+    "sha256": "6a9b4b3f7ea3b4426525d17541af638aa7ac3e2a779b30489d0b4fac821b8032",
+    "author": "RUPTURE project",
+    "source": "Original layered procedural synthesis"
+  },
+  {
+    "file": "roundWin.wav",
+    "seconds": 0.65,
+    "sampleRate": 24000,
+    "bytes": 31244,
+    "sha256": "861d1c4895a6d94e4f06b17dda11aa562654b88bdf9ec2350515345250557ac2",
+    "author": "RUPTURE project",
+    "source": "Original layered procedural synthesis"
+  },
+  {
+    "file": "roundLoss.wav",
+    "seconds": 0.55,
+    "sampleRate": 24000,
+    "bytes": 26444,
+    "sha256": "5cdf08ea2e75f33e5c155b0e8fea3127c289cce55e9c32dad2b43ced20cecdbf",
+    "author": "RUPTURE project",
+    "source": "Original layered procedural synthesis"
+  }
+]

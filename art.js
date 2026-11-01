@@ -38,7 +38,7 @@ export function batchStatics(props) {
   const localInverse = new T.Matrix4().copy(props.matrixWorld).invert();
   const buckets = new Map();
   for (const m of [...props.children]) {
-    if (!m.isMesh || m.material.transparent) continue;
+    if (!m.isMesh || !m.visible || m.material.transparent) continue;
     const key = m.material.uuid + '/' + m.castShadow + '/' + m.receiveShadow;
     let bucket = buckets.get(key);
     if (!bucket) {

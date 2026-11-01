@@ -1,0 +1,133 @@
+[
+  {
+    "file": "AK.glb",
+    "bytes": 58428,
+    "sha256": "4f3d35ff1fbc26864a6ff129a4969f5e3d34b3d7e4c5d0a58dc7044b3c9bcd30",
+    "original": "AK.gltf",
+    "animations": []
+  },
+  {
+    "file": "Character_Enemy.glb",
+    "bytes": 1313104,
+    "sha256": "9a9e182bfb31fecb195ca1ab83fd3e5d186c6d358ee3e96b138c9b24d0d9e8c8",
+    "original": "Character_Enemy.gltf",
+    "animations": [
+      "Death",
+      "Duck",
+      "HitReact",
+      "Idle",
+      "Idle_Shoot",
+      "Jump",
+      "Jump_Idle",
+      "Jump_Land",
+      "No",
+      "Punch",
+      "Run",
+      "Run_Gun",
+      "Run_Shoot",
+      "Walk",
+      "Walk_Shoot",
+      "Wave",
+      "Yes"
+    ]
+  },
+  {
+    "file": "Character_Hazmat.glb",
+    "bytes": 1353764,
+    "sha256": "b49b3b26d0cfec84b253bf4e750a58cac8986323a1e5b223044ef8383e383e8d",
+    "original": "Character_Hazmat.gltf",
+    "animations": [
+      "Death",
+      "Duck",
+      "HitReact",
+      "Idle",
+      "Idle_Shoot",
+      "Jump",
+      "Jump_Idle",
+      "Jump_Land",
+      "No",
+      "Punch",
+      "Run",
+      "Run_Gun",
+      "Run_Shoot",
+      "Walk",
+      "Walk_Shoot",
+      "Wave",
+      "Yes"
+    ]
+  },
+  {
+    "file": "Character_Soldier.glb",
+    "bytes": 1363892,
+    "sha256": "fcaf6e4061b3661b5478c842c132d3d989488464aea417f881b519b3247def84",
+    "original": "Character_Soldier.gltf",
+    "animations": [
+      "Death",
+      "Duck",
+      "HitReact",
+      "Idle",
+      "Idle_Shoot",
+      "Jump",
+      "Jump_Idle",
+      "Jump_Land",
+      "No",
+      "Punch",
+      "Run",
+      "Run_Gun",
+      "Run_Shoot",
+      "Walk",
+      "Walk_Shoot",
+      "Wave",
+      "Yes"
+    ]
+  },
+  {
+    "file": "Knife_1.glb",
+    "bytes": 24824,
+    "sha256": "95261c730353b799d9ca561c9d7c96b87f8fc19b71543d0c64488cf96307d9f2",
+    "original": "Knife_1.gltf",
+    "animations": []
+  },
+  {
+    "file": "Pistol.glb",
+    "bytes": 42504,
+    "sha256": "74411e8662194713bd87e9ca8bbaf0e69b7dc19954f4f443711ba9a6acbd27f6",
+    "original": "Pistol.gltf",
+    "animations": []
+  },
+  {
+    "file": "Revolver.glb",
+    "bytes": 60572,
+    "sha256": "72ee502f35cb054f0f7ef714dc81840fd8e9e03b04adf8e22d7ccc3b01106c21",
+    "original": "Revolver.gltf",
+    "animations": []
+  },
+  {
+    "file": "Shotgun.glb",
+    "bytes": 48716,
+    "sha256": "10003f9d9be719d70f8cddbd509542ab84c1ead4f639203dfb7b21823b3a5115",
+    "original": "Shotgun.gltf",
+    "animations": []
+  },
+  {
+    "file": "SMG.glb",
+    "bytes": 44580,
+    "sha256": "c2720ac90578410ec0e3cbea718254555056e901fdbe2accddeac2900e93b43c",
+    "original": "SMG.gltf",
+    "animations": []
+  },
+  {
+    "file": "Sniper.glb",
+    "bytes": 85356,
+    "sha256": "9762ab2e742e79eb3c0376cae135fe18b0aced8fe348f152c6178be6efccfd24",
+    "original": "Sniper.gltf",
+    "animations": []
+  },
+  {
+    "file": "Sniper_2.glb",
+    "bytes": 59396,
+    "sha256": "5c14fed8d549a5236c3b3878a7908c5e50787554f05431d1a349371f631a07e1",
+    "original": "Sniper_2.gltf",
+    "animations": []
+  }
+]

@@ -1,7 +1,10 @@
 import * as T from './vendor/three.module.js';
+import { createImportedWeapon } from './models.js';
 
-// Bevelled, individually assembled first-person models; no downloaded game assets.
+// Procedural alternative used if the local imported weapon is unavailable.
 export function createWeaponModel(id, w, agentColor) {
+  const imported = createImportedWeapon(id, w, agentColor);
+  if (imported) return imported;
   const group = new T.Group();
   group.rotation.y = 0.25;
   const metal = new T.MeshStandardMaterial({ color: '#485b68', roughness: 0.34, metalness: 0.68 });

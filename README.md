@@ -1,6 +1,42 @@
-# RUPTURE — Alpha 05
+# RUPTURE — Alpha 08
 
 FPS tático 3D para navegador, com identidade própria e mecânicas inspiradas no gênero de tiro tático com agentes. Feito com JavaScript, WebGL 2 e Three.js. **Alpha com modo solo e multiplayer em salas privadas: até 3 × 3 na partida rápida ou 5 × 5 no competitivo.**
+
+## Arsenal, mapa e combate — versão 08
+
+- **12 armas de fogo e a faca**, em seis categorias. Foram retiradas Fury, Sawed, Sentinel, Tempest e Titan para concentrar o arsenal em funções distintas. As armas removidas também são recusadas pelo servidor.
+- **Santa Luz ampliada de 96 × 96 para 120 × 120 unidades**, com 56,25% mais área. A escala horizontal cresceu 25%; o tamanho dos agentes, a altura das coberturas e a velocidade de movimento continuam iguais.
+- Cinco planos por ponto, três frentes, atalhos do meio e rotação defensiva preservados. Duas coberturas adicionais nos acessos principais dividem o avanço em etapas.
+- O menor percurso inicial leva aproximadamente **20,4 s para A e para B**, correndo desde o spawn. A rotação da defesa permanece menor que o flanco pelo lado atacante. Esses critérios geométricos não substituem o ajuste de equilíbrio em partidas reais.
+- Ao tomar tiro: vinheta, indicação da direção, leve reação da câmera e brilho/partículas no personagem. Escudo usa partículas azuis. A reação ocorre na arte e mantém as hitboxes.
+- Ao morrer: câmera desce e inclina durante 0,85 s, imagem perde saturação, surge o nome do autor e o corpo usa sua animação de morte. Uma breve onda no chão e partículas marcam a eliminação. Depois a câmera acompanha os aliados vivos.
+- Os impactos também são sincronizados no online. Os corpos dos outros jogadores permanecem visíveis após a morte, com animação; deixam de aparecer em pé ou desaparecer imediatamente. Um novo round limpa os efeitos e restaura os agentes.
+
+Atualize **o jogo e o servidor juntos**, incluindo `combat-fx.js`, `map-layout.js`, `arena.js` e os demais arquivos do pacote.
+
+## Cenário e áudio — versão 07
+
+- Duas novas ligações da praça para galerias e armazém permitem dividir ataques, mudar de frente e flanquear. Cada bomb tem cinco planos navegáveis para os bots.
+- Coberturas nas ligações e um contêiner na rotação da defesa interrompem linhas longas sem fechar os caminhos. Na Alpha 07, a arena tinha 96 × 96 unidades e ganhou conexões e posições de disputa; a Alpha 08 amplia esse desenho.
+- Pisos de pedra, concreto e paredes de reboco usam texturas do ambientCG, com cor, relevo normal e rugosidade, preparadas em 512 px.
+- Sete modelos de cenário do Quaternius: caixas, dois contêineres, pallet, tanque inerte, poste e árvore. As coberturas mantêm colisão física; as árvores ficam acima dos telhados.
+- 25 efeitos sonoros locais: seis famílias de disparo, faca, passos em pedra/metal/grama, recarga, impacto, habilidades e os sinais de plantio, contagem, metade do desarme e detonação da spike.
+- Áudio estéreo por direção e distância, reduzido por paredes, volume no menu e passos silenciosos ao caminhar com Shift ou agachar. Os eventos também são transmitidos nas salas online, com controle de repetição e expiração após quedas de conexão.
+- O novo cenário, as texturas e os sons somam aproximadamente **1,14 MB** antes da compactação. Tudo acompanha o jogo em `assets/`.
+
+Ao atualizar, substitua **todo o conteúdo desta versão**, incluindo a pasta `assets/`, `environment.js` e `audio.js`, tanto no jogo quanto no servidor. Os créditos e licenças estão em [ASSETS.md](ASSETS.md).
+
+## Modelos importados — versão 06
+
+O jogo agora utiliza personagens e armas do **Toon Shooter Game Kit, de Quaternius**, identificado como CC0 na página do pacote. Os modelos estão incluídos localmente e não precisam de serviços externos durante a partida.
+
+- Três bases de personagem adaptadas aos oito agentes, com cores próprias, esqueleto e animações de postura/corrida. Os bots também usam animação de morte.
+- Oito bases de armas aplicadas ao arsenal, incluindo pistola, revólver, submetralhadora, rifle, escopeta, dois modelos de precisão e faca.
+- Armas importadas em primeira pessoa e acessórios de arma selecionados nos personagens.
+- Arquivos convertidos para GLB, com aproximadamente 4,46 MB no total. A biblioteca é carregada antes do menu e inclui visuais alternativos caso algum arquivo falhe.
+- Hitboxes preservadas e independentes da arte, com a simulação leve do servidor.
+
+Veja [ASSETS.md](ASSETS.md) para saber quais modelos foram usados, os créditos, a licença e o que foi adaptado. Ao publicar, inclua a pasta `assets/`, `models.js` e os novos utilitários em `vendor/`.
 
 ## Novo mapa — versão 05
 
@@ -14,7 +50,7 @@ FPS tático 3D para navegador, com identidade própria e mecânicas inspiradas n
 - **M abre o mapa tático**, com nomes das regiões e os planos de entrada. O minimapa usa a nova escala.
 - As barreiras de compra, os spawns, os bots e a simulação multiplayer usam o mesmo desenho do mapa.
 
-Veja [MAPA.md](MAPA.md) para conhecer as rotas e as medidas de percurso. A versão passou pelas 90 verificações solo, 30 multiplayer e 12 específicas do mapa. O balanceamento fino continua a partir de partidas reais.
+Veja [MAPA.md](MAPA.md) para conhecer as rotas e as medidas de percurso. O balanceamento fino continua a partir de partidas reais.
 
 ## Multiplayer com amigos — versão 04
 
@@ -48,16 +84,16 @@ O código está pronto para configurar a hospedagem; nenhum servidor remoto foi 
 - Arena ampliada de 56 × 60 para 64 × 68 unidades de área interna. Casas laterais atravessáveis, arquivo central com cobertura, jardim, oficinas, fonte, balcões, varandas decorativas e novas conexões entre rotas.
 - A fonte, os balcões e as coberturas bloqueiam movimento e disparos. Janelas e varandas são elementos visuais; os interiores térreos e os novos becos são jogáveis.
 - Objetos estáticos agrupados por material para reduzir chamadas de desenho, mantendo o teste de colisão e de tiros separado da renderização.
-- **17 armas de fogo, além da faca**, com filtros por categoria, tipo de disparo, dano, capacidade, recarga e indicação de luneta/silenciador. Pistolas compradas ocupam o slot secundário e podem ser mantidas junto de uma primária.
+- **12 armas de fogo, além da faca, no arsenal atual**, com filtros por categoria, tipo de disparo, dano, capacidade, recarga e indicação de luneta/silenciador. Pistolas compradas ocupam o slot secundário e podem ser mantidas junto de uma primária.
 
 | Categoria | Armas |
 | --- | --- |
-| Secundárias | Pulse, Sawed, Fury, Whisper, Outlaw |
+| Secundárias | Pulse, Whisper, Outlaw |
 | Submetralhadoras | Viper, Spectre |
-| Rifles | Jackal, Sentinel, Marshal, Eclipse |
-| Escopetas | Nova, Tempest |
+| Rifles | Jackal, Marshal, Eclipse |
+| Escopetas | Nova |
 | Precisão | Longshot (3×), Horizon (5×) |
-| Metralhadoras | Atlas (50 balas), Titan (100 balas) |
+| Metralhadoras | Atlas (50 balas) |
 
 ## Jogar no computador
 
@@ -99,7 +135,7 @@ Referência: [documentação oficial do GitHub Pages](https://docs.github.com/en
 - FPS 3D com mira, movimento, pulo, caminhada silenciosa e agachamento.
 - Recuo, dispersão ao andar/pular, mira secundária, escopeta com múltiplos projéteis e rifle com luneta.
 - Dano por região, tiro na cabeça, munição, recarga e troca de arma.
-- Loja com 17 armas de fogo em seis categorias, faca inicial e dois tipos de escudo.
+- Loja com 12 armas de fogo em seis categorias, faca inicial e dois tipos de escudo.
 - Economia: 800 créditos iniciais; +200 por eliminação; +300 por plantio/desarme do jogador; +3.000 por vitória; +1.900/2.400/2.900 por derrotas consecutivas. Limite de 9.000 créditos.
 - Compra de 30 segundos. Competitivo: rounds de 100 segundos, 13 vitórias com vantagem de dois e intervalo após 12 rounds. Partida rápida: rounds de 85 segundos, até 4 vitórias e troca de lados após 3 rounds.
 - Spike: 4 / 45 / 7 segundos no competitivo e 3 / 35 / 5 no modo rápido (plantio / detonação / desarme). Soltar F ou sofrer dano perde a parte ainda não garantida da interação; a metade do desarme é preservada.
@@ -152,19 +188,24 @@ Habilidades comuns são repostas a cada round. A ultimate exige 6 pontos; você 
 
 - `index.html`, `style.css`: telas, loja e interface da partida.
 - `game.js`: entrada, combate, poderes, spike, economia e comportamento dos bots.
+- `combat-fx.js`: impactos, reação visual, indicação de dano e transição de morte.
 - `rules.js`: modos de partida, troca de lados, condição de vitória e planos de entrada.
 - `world.js`: personagens, colisão, linha de visão e navegação.
 - `map-layout.js`: dimensões, áreas, spawns, pontos e planos de entrada compartilhados.
 - `arena.js`: arquitetura, coberturas, pisos e detalhes do novo Distrito.
 - `data.js`: dados de armas e agentes; ilustrações vetoriais da interface.
-- `arsenal.js`: modelos detalhados das armas e mãos em primeira pessoa.
+- `arsenal.js`: modelos alternativos das armas e mãos em primeira pessoa.
+- `models.js`: carregamento da biblioteca GLB, variações, esqueletos, animações e acessórios.
+- `environment.js`, `assets/environment/`, `assets/textures/`: modelos de cenário e materiais texturizados.
+- `audio.js`, `assets/audio/`: carregamento dos WAV locais, mistura estéreo e volume.
+- `assets/models/`: modelos importados, licença e manifesto de arquivos.
 - `art.js`: iluminação, reflexos ambientais, detalhes arquitetônicos e agrupamento dos objetos do mapa.
 - `vendor/three.module.js`: Three.js r170, incluído localmente sob licença MIT.
 - `serve.mjs`, `package.json`, `JOGAR.cmd`: formas opcionais de iniciar localmente.
 
 ## Escopo desta versão
 
-Este é um protótipo jogável com arte 3D procedural, um mapa, partidas solo contra bots e salas privadas entre amigos. Não reproduz a qualidade gráfica, animações, mapas, balanceamento ou todos os sistemas de um FPS comercial. Personagens, armas, mapa e interface têm identidade própria; não inclui arquivos da Riot Games.
+Este é um protótipo jogável com modelos importados, texturas e arquitetura produzida pelo código, um mapa, partidas solo contra bots e salas privadas entre amigos. Não reproduz a qualidade gráfica, animações, mapas, balanceamento ou todos os sistemas de um FPS comercial. Personagens, armas, mapa e interface têm identidade própria; não inclui arquivos da Riot Games.
 
 Publicar no GitHub Pages permite carregar o jogo pelo link. Para pessoas em computadores diferentes entrarem na mesma partida, publique também o servidor incluído em `server/` e informe seu endereço no jogo. Consulte `MULTIPLAYER.md`. As salas ficam na memória e encerram se o servidor reiniciar.
 
@@ -172,15 +213,20 @@ O jogo foi conferido no navegador e as regras centrais foram verificadas em simu
 
 ## Verificações
 
-Com Node.js 22 ou superior instalado, execute `npm test`, `npm run test:online` e `npm run test:map`. Não é preciso instalar dependências. As 90 verificações solo cobrem compras, saldo, proteção, plantio pelo jogador e por bot, detonação, desarme, troca de lados, habilidades, limpeza de barreiras, dano, queda da spike, rotas, colisão, interiores atravessáveis, rotas de flanco, agrupamento do cenário, compra/carregador/reserva das 17 armas, preservação de secundárias, partidas completas nos dois modos, barreiras da compra, os oito agentes, ultimates, planos de ataque, transporte da spike, metade do desarme, regras da prorrogação e física de salto/tetos. A simulação usa a biblioteca 3D real e substitui a tela e o áudio por objetos de teste; ela não mede desempenho gráfico nem substitui testes de mira e movimentação no navegador.
+Com Node.js 22 ou superior instalado, execute `npm test`, `npm run test:online`, `npm run test:map` e `npm run test:models`. Não é preciso instalar dependências. As 86 verificações solo cobrem compras, saldo, proteção, plantio pelo jogador e por bot, detonação, desarme, troca de lados, habilidades, limpeza de barreiras, dano, queda da spike, rotas, colisão, interiores atravessáveis, rotas de flanco, agrupamento do cenário, compra/carregador/reserva das 12 armas, preservação de secundárias, partidas completas nos dois modos, barreiras da compra, os oito agentes, ultimates, planos de ataque, transporte da spike, metade do desarme, regras da prorrogação e física de salto/tetos. A simulação usa a biblioteca 3D real e substitui a tela e o áudio por objetos de teste; ela não mede desempenho gráfico nem substitui testes de mira e movimentação no navegador.
 
 Na prévia do navegador também foi concluída uma entrada real no ponto A com fumaça, avanço, plantio da spike e contagem de proteção do ponto. Foram conferidos a seleção 3D dos agentes, as zonas de compra com barreiras, a compra de armas/escudos, o consumo de munição ao disparar, a movimentação, a névoa, a barreira, a pausa e a troca de lados. A prévia integrada bloqueou a captura do cursor, por isso essa revisão usou o modo de mouse livre.
 
-As 30 verificações multiplayer incluem duas conexões WebSocket reais, credenciais, regras de sala, reconexão, compra, combate entre humanos, economia, bots opcionais, plantio/desarme e transição de rounds. Duas abas do navegador também entraram na mesma partida e receberam o plantio real da spike.
+As 36 verificações multiplayer incluem duas conexões WebSocket reais, credenciais, regras de sala, reconexão, compra, combate entre humanos, economia, bots opcionais, plantio/desarme, transição de rounds, passos independentes dos jogadores e os novos eventos sonoros. Duas abas do navegador também entraram na mesma partida e receberam o plantio real da spike nas revisões anteriores.
 
 ## Créditos de terceiros
 
-Three.js: Copyright © 2010–2024 three.js authors. Licença em [`vendor/THREE-LICENSE.txt`](vendor/THREE-LICENSE.txt). As demais imagens, geometrias e sons são criados pelo próprio código deste projeto.
+Three.js: Copyright © 2010–2024 three.js authors. Licença em [`vendor/THREE-LICENSE.txt`](vendor/THREE-LICENSE.txt). Os modelos importados são de Quaternius e as texturas são do ambientCG, ambos sob CC0. A arquitetura, as ilustrações da interface e os sons são produzidos pelo projeto. Consulte [ASSETS.md](ASSETS.md).
 
 WebSocket: ws 8.22.1, licença MIT em `server/vendor/ws/LICENSE`.
+
+
+As 11 verificações dos modelos carregam os arquivos reais e conferem geometrias, esqueletos independentes, animações, hitboxes e armas. Os modelos também foram conferidos no navegador.
+
+`npm run test:polish` executa mais 11 verificações dos modelos de cenário, volumes físicos, cinco planos, superfícies, WAV reais, famílias de disparo, direção/distância/oclusão, volume e limite de fontes sonoras. `npm run test:map` executa 13 verificações de percurso e linhas de tiro. `npm run test:combat` acrescenta sete verificações de direção, reação, hitboxes, câmera de morte e descarte dos efeitos. A Alpha 08 totaliza **164 verificações**. A prévia confirma carregamento, movimentação, a loja de 12 armas, dano e aviso de morte com autor; os testes de áudio validam os arquivos e o mecanismo, sem substituir avaliação auditiva com fones.
 

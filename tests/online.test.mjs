@@ -35,6 +35,11 @@ sim.tick(0.02);
 check('Arma inexistente é recusada sem gastar créditos', () =>
   assert.equal(snap('b').own.credits, 800),
 );
+for (const id of ['frenzy', 'shorty', 'guardian', 'judge', 'odin']) sim.command('b', 'buy', id);
+sim.tick(0.02);
+check('Armas retiradas do arsenal também são recusadas no servidor', () =>
+  assert.equal(snap('b').own.credits, 800),
+);
 advance(3, { a: { keys: ['KeyW'], fire: true } });
 check('Compra bloqueia movimento entre bases e consumo de munição', () => {
   assert.ok(snap('a').actors[0].pos.z > MAP.attackBarrier + 0.3);
@@ -56,10 +61,24 @@ check('Movimento de um humano mantém o adversário independente', () => {
   assert.equal(snap('b').actors[1].pos.x, 0);
 });
 const ammo = snap('a').own.pistol.ammo;
+advance(0.1, { a: { keys: ['KeyD'] }, b: { keys: ['KeyD'] } });
+check('Dois humanos correndo produzem passos independentes na sala', () => {
+  const steps = snap('a').audio.filter((e) => e.type === 'step');
+  assert.ok(steps.some((e) => e.position.z > 20));
+  assert.ok(steps.some((e) => e.position.z < -20));
+});
 advance(0.3, { a: { fire: true } });
 check('Servidor aplica cadência e munição para disparos humanos', () =>
   assert.equal(snap('a').own.pistol.ammo, ammo - 1),
 );
+check('Disparo online carrega arma, posição e identificador para os dois clientes', () => {
+  const shot = snap('a').audio.find((e) => e.type === 'shot');
+  assert.ok(shot);
+  assert.equal(shot.variant, 'pulse');
+  assert.equal(shot.to, null);
+  assert.ok(Number.isFinite(shot.position.x));
+  assert.ok(snap('b').audio.some((e) => e.id === shot.id));
+});
 advance(0.1, { a: { fire: false } });
 advance(0.2, { a: { fire: true } });
 check('Soltar e apertar novamente permite segundo tiro semiautomático', () =>
@@ -80,6 +99,9 @@ check('Comprar durante o round é recusado pelo servidor', () =>
 sim.disconnect('a');
 const pos = { ...snap('a').actors[0].pos };
 advance(1);
+check('Eventos de áudio antigos expiram para não repetir após reconexão', () =>
+  assert.equal(snap('a').audio.length, 0),
+);
 check('Desconectar interrompe movimento e disparos', () =>
   assert.equal(JSON.stringify(snap('a').actors[0].pos), JSON.stringify(pos)),
 );
@@ -169,6 +191,14 @@ check('Tiros humanos atingem a hitbox de outro humano e encerram o round', () =>
 check('Eliminação é sincronizada no histórico e concede crédito ao autor', () => {
   assert.equal(objective.snapshot('a').own.credits, 3500);
   assert.equal(objective.snapshot('b').feed.length, 1);
+});
+check('Dano online informa origem, autor e identificador do impacto aos clientes', () => {
+  const impact = objective.snapshot('b').actors[1].impact;
+  assert.ok(impact.seq > 0);
+  assert.ok(impact.amount > 0);
+  assert.equal(impact.attacker, 'Ana');
+  assert.ok(Math.abs(impact.from.x - duelA.pos.x) < 0.01);
+  assert.equal(objective.snapshot('a').actors[1].impact.seq, impact.seq);
 });
 
 for (let i = 0; i < 14000 && objective.snapshot('a').state !== 'match'; i++) objective.tick(0.05);
@@ -277,8 +307,11 @@ try {
   });
   a.send({ type: 'command', action: 'ready' });
   resumed.send({ type: 'command', action: 'ready' });
-  await resumed.wait('snapshot', (m) => m.snapshot.state === 'live');
+  const started = await resumed.wait('snapshot', (m) => m.snapshot.state === 'live');
   check('Round inicia entre clientes reais quando todos confirmam', () => assert.ok(true));
+  check('Sinal de início é sincronizado nos snapshots por WebSocket', () =>
+    assert.ok(started.snapshot.audio.some((e) => e.type === 'start' && e.id > 0)),
+  );
 } finally {
   for (const s of sockets) s.close();
   child.kill();

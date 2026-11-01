@@ -43,6 +43,41 @@ canvas#game {
   width: 100%;
   height: 100%;
 }
+canvas#game.death-view {
+  filter: saturate(0.3) contrast(1.12);
+}
+#damage-direction {
+  position: fixed;
+  left: 50%;
+  top: 50%;
+  width: 168px;
+  height: 168px;
+  pointer-events: none;
+  opacity: 0;
+  z-index: 4;
+}
+#damage-direction i {
+  position: absolute;
+  top: 0;
+  left: 54px;
+  width: 60px;
+  height: 9px;
+  background: #ff6173;
+  clip-path: polygon(0 0, 100% 0, 86% 100%, 14% 100%);
+  box-shadow: 0 0 16px #ff344c;
+}
+#spectator #death-killer {
+  display: block;
+  margin-top: 10px;
+  color: #ff9ea9;
+  font-size: 12px;
+  letter-spacing: 1px;
+}
+@media (prefers-reduced-motion: reduce) {
+  canvas#game.death-view {
+    filter: saturate(0.6);
+  }
+}
 .hidden {
   display: none !important;
 }
@@ -782,7 +817,11 @@ kbd {
 #spectator {
   position: absolute;
   left: 50%;
-  top: 75%;
+  bottom: 132px;
+  min-width: 280px;
+  padding: 16px 24px;
+  border-left: 3px solid #ff7183;
+  background: linear-gradient(110deg, #111e2bf2, #14232bd9);
   transform: translateX(-50%);
   text-align: center;
   font-size: 18px;
@@ -1814,6 +1853,17 @@ dialog p {
 }
 
 /* Private rooms */
+@media (min-width: 900px) and (min-height: 720px) {
+  #menu h1 {
+    font-size: clamp(54px, 4.7vw, 64px);
+  }
+  .hero .mode-switch {
+    margin-top: 10px;
+  }
+  .hero .play-note {
+    margin-top: 8px;
+  }
+}
 .online-button {
   margin-top: 10px;
   width: 302px;

@@ -16,6 +16,7 @@
     <canvas id="game" aria-label="Arena 3D do jogo RUPTURE"></canvas>
     <div id="vignette"></div>
     <div id="damage-flash"></div>
+    <div id="damage-direction" aria-hidden="true"><i></i></div>
     <div id="flash"></div>
     <div id="loading">
       <span class="brand-mark">R</span>
@@ -25,12 +26,12 @@
     <main id="menu" class="screen hidden">
       <header class="nav">
         <a class="wordmark" href="./"
-          ><span class="brand-mark">R</span> RUPTURE<span class="alpha">ALPHA 05</span></a
+          ><span class="brand-mark">R</span> RUPTURE<span class="alpha">ALPHA 08</span></a
         ><span class="nav-center">FPS TÁTICO · NO SEU NAVEGADOR</span
         ><button class="text-button" id="help-btn">COMO JOGAR <span>↗</span></button>
       </header>
       <section class="hero">
-        <div class="eyebrow"><i></i> OPERAÇÃO 005 / SANTA LUZ</div>
+        <div class="eyebrow"><i></i> OPERAÇÃO 008 / SANTA LUZ</div>
         <h1>ENTRE.<br />MIRE.<br /><span>DECIDA.</span></h1>
         <p class="hero-copy">
           Cada ângulo importa. Cada poder muda o round.<br />Escolha seu agente e conquiste o ponto.
@@ -61,7 +62,7 @@
         <div class="map-illustration"><span>A</span><i></i><span>B</span></div>
         <h2>SANTA LUZ</h2>
         <p>Três frentes. Rotas conectadas. Conquiste o meio.</p>
-        <div class="map-meta"><span>◆ DISTRITO 96 × 96</span><span>☀ 16:42</span></div>
+        <div class="map-meta"><span>◆ DISTRITO 120 × 120</span><span>☀ 16:42</span></div>
       </aside>
       <footer class="menu-footer">
         <div class="agents-block">
@@ -192,7 +193,8 @@
         <span>◇</span><b id="kill-confirm-text">ELIMINAÇÃO</b>
       </div>
       <div id="spectator" class="hidden">
-        VOCÊ FOI ELIMINADO <span>Acompanhe o restante do round</span>
+        VOCÊ FOI ELIMINADO <b id="death-killer">ELIMINADO EM COMBATE</b
+        ><span>Acompanhe o restante do round</span>
       </div>
       <div class="bottom-hud">
         <div class="vitals">
@@ -242,16 +244,16 @@
               caminhos.
             </p>
             <p>
-              <b>MEIO · PRAÇA</b>Ganhe espaço para dividir a defesa pelos curtos. A torre interrompe
-              a visão entre as bases.
+              <b>MEIO · PRAÇA</b>Use as ligações laterais para dividir A ou B com seus aliados.
+              Avance pelos curtos ou mude de frente. A torre interrompe a visão entre as bases.
             </p>
             <p>
               <b>B · ARMAZÉM</b>Entre pelo armazém ou abra o canal. Confira os cantos antes de
               atravessar o pátio.
             </p>
             <p>
-              <b>DEFESA · NORTE</b>Use a rotação para reforçar A ou B. Retome pelo fundo ou dispute
-              os acessos do meio.
+              <b>DEFESA · NORTE</b>Use o contêiner como cobertura na rotação para A ou B. Retome
+              pelo fundo ou dispute os acessos do meio.
             </p>
             <div class="map-legend">
               <span>● Você / aliados</span><span>● Inimigos avistados</span><span>◇ Spike</span>

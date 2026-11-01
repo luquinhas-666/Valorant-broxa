@@ -115,11 +115,11 @@ export async function loadHeadlessGame() {
     }
     const m = new vm.SourceTextModule(src, { context: ctx, identifier: file });
     cache.set(file, m);
-    await m.link((spec) => load(path.resolve(path.dirname(file), spec)));
     return m;
   }
 
   const game = await load(path.join(root, 'game.js'));
+  await game.link((spec, parent) => load(path.resolve(path.dirname(parent.identifier), spec)));
   await game.evaluate();
   return game.namespace;
 }
